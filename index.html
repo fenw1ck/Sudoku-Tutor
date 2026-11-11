@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sudoku Tutor</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f1ea;--card:#fffdf8;--ink:#26292b;--mute:#6f7478;--line:#d9d3c6;--acc:#2f5d50;--accink:#fff;--sel:#cfe3da;--inv:#fbefc4;--tgt:#bfe3b4;--bad:#c4452f;--giv:#26292b;--usr:#2a5ea8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16181a;--card:#202325;--ink:#ece9e2;--mute:#9a9e9f;--line:#3a3f42;--acc:#7fb8a4;--accink:#10201b;--sel:#2c4a40;--inv:#4a4220;--tgt:#2f5a2b;--bad:#ee7a63;--giv:#ece9e2;--usr:#8db8f0}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#16181a;--card:#202325;--ink:#ece9e2;--mute:#9a9e9f;--line:#3a3f42;--acc:#7fb8a4;--accink:#10201b;--sel:#2c4a40;--inv:#4a4220;--tgt:#2f5a2b;--bad:#ee7a63;--giv:#ece9e2;--usr:#8db8f0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:14px 12px 40px}
+h1{font:700 28px/1.1 Georgia,serif;margin:4px 0 2px}.sub{color:var(--mute);font-size:14px;margin:0 0 12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+select,button{font:600 15px system-ui,sans-serif;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 12px}
+button.p{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+select{flex:1;min-width:0}
+#g{display:grid;grid-template-columns:repeat(9,1fr);width:100%;aspect-ratio:1;border:2px solid var(--ink);background:var(--card);margin:10px 0;user-select:none}
+.c{border:1px solid var(--line);display:grid;place-items:center;min-width:0;min-height:0;cursor:pointer;position:relative;overflow:hidden}
+.c.br{border-right:2px solid var(--ink)}.c.bb{border-bottom:2px solid var(--ink)}
+.d{font:600 clamp(16px,5.4vw,27px) Georgia,serif;color:var(--usr)}.g .d{color:var(--giv);font-weight:700}
+.fo{background:var(--sel)}.sel{background:var(--sel);outline:2px solid var(--acc);outline-offset:-2px}.inv{background:var(--inv)}.tgt{background:var(--tgt)}
+.m{display:grid;grid-template-columns:repeat(3,1fr);width:100%;height:100%;font:clamp(7px,2.3vw,11px)/1 system-ui,sans-serif;color:var(--mute)}
+.m i{font-style:normal;display:grid;place-items:center}.m .k{color:var(--acc);font-weight:800;font-size:1.25em}.m .x{color:var(--bad);text-decoration:line-through;font-weight:800;font-size:1.25em}
+.pad{display:grid;grid-template-columns:repeat(9,1fr);gap:4px}.pad button{padding:10px 0;font-size:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.tag{font-size:12px;background:var(--acc);color:var(--accink);border-radius:20px;padding:2px 9px;margin-left:6px;font-weight:600}
+.k2{color:var(--mute);font-size:14px}h2{font:700 12px system-ui;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);margin:0 0 6px}
+details{margin:10px 0}summary{cursor:pointer;font-weight:600}.gd p{margin:6px 0;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>Sudoku Tutor</h1>
+<p class="sub">Pick a level, solve, and ask for a hint whenever you’re stuck. Each hint names the technique and shows how it works.</p>
+<div class="row"><select id="lvl" aria-label="Level">
+<option value="1">Level 1: Full House, Last Digit, Scanning</option>
+<option value="2">Level 2: + Naked and Hidden Singles</option>
+<option value="3">Level 3: + Naked and Hidden Pairs</option>
+<option value="4">Level 4: + Pointing and Claiming</option>
+<option value="5">Level 5: + X-Wing</option>
+<option value="6">Level 6: + XY-Wing</option></select><button class="p" id="new">New puzzle</button></div>
+<div class="k2" id="st"></div>
+<div id="g"></div>
+<div class="pad" id="pad"></div>
+<div class="row"><button class="p" id="hint">Hint</button><label class="k2"><input type="checkbox" id="cands"> Show candidates</label></div>
+<div id="hc"></div>
+<details class="card gd"><summary>Technique guide</summary>
+<p><b>Level 1.</b> <i>Full House:</i> a unit with one empty cell. <i>Last Digit:</i> a digit placed 8 times has a forced 9th spot. <i>Scanning (Cross-Hatching):</i> the digit’s rows and columns block all but one cell of a box.</p>
+<p><b>Level 2.</b> <i>Naked Single:</i> a cell with one candidate. <i>Hidden Single:</i> a digit with only one possible cell in a row, column or box.</p>
+<p><b>Level 3.</b> <i>Naked Pair:</i> two cells share the same two candidates, so those digits leave the rest of the unit. <i>Hidden Pair:</i> two digits fit only the same two cells, so those cells lose their other candidates.</p>
+<p><b>Level 4.</b> <i>Pointing Pair/Triple (Locked Candidates 1):</i> in a box, a digit lines up in one row or column, so it leaves the rest of that line. <i>Box/Line Reduction, or Claiming (Locked Candidates 2):</i> in a line, a digit sits in one box, so it leaves the rest of that box.</p>
+<p><b>Level 5.</b> <i>X-Wing:</i> a digit has two spots in each of two lines, and they align on the same two crossing lines. It leaves the rest of those crossing lines.</p>
+<p><b>Level 6.</b> <i>XY-Wing:</i> a pivot {A,B} sees wings {A,C} and {B,C}. Cells that see both wings can’t be C.</p>
+<p>Levels 7 and 8 (chains, colouring, uniqueness techniques and Almost Locked Sets) aren’t generated here yet.</p></details>
+</main>
+<script>
+const $=id=>document.getElementById(id),rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const bit=d=>1<<d,pc=m=>{let n=0;while(m){n+=m&1;m>>=1}return n},dg=m=>{const r=[];for(let d=1;d<=9;d++)if(m&bit(d))r.push(d);return r};
+const rc=i=>"R"+(Math.floor(i/9)+1)+"C"+(i%9+1),cap=s=>s[0].toUpperCase()+s.slice(1);
+const U=[];for(let r=0;r<9;r++)U.push([...Array(9)].map((_,c)=>r*9+c));for(let c=0;c<9;c++)U.push([...Array(9)].map((_,r)=>r*9+c));
+for(let b=0;b<9;b++){const r0=Math.floor(b/3)*3,c0=b%3*3;U.push([0,1,2,3,4,5,6,7,8].map(k=>(r0+Math.floor(k/3))*9+c0+k%3))}
+const UN=u=>u<9?"row "+(u+1):u<18?"column "+(u-8):"box "+(u-17);
+const P=Array.from({length:81},()=>new Uint8Array(81));for(const u of U)for(const a of u)for(const b of u)if(a!==b)P[a][b]=1;
+const TECH={
+fullhouse:{n:"Full House",l:1,d:"A row, column or box with only one empty cell must take the one missing digit."},
+lastdigit:{n:"Last Digit",l:1,d:"Once a digit is placed 8 times, the 9th spot is forced."},
+scanning:{n:"Scanning (also called Cross-Hatching)",l:1,d:"A digit’s existing rows and columns block cells. If a box has one cell left for it, it goes there."},
+naked1:{n:"Naked Single",l:2,d:"A cell has only one candidate left."},
+hidden1:{n:"Hidden Single",l:2,d:"A digit has only one possible cell in a row, column or box, even if that cell has other candidates."},
+nakedpair:{n:"Naked Pair",l:3,d:"Two cells in a unit hold the same two candidates. Those digits must go in those cells, so they leave the rest of the unit."},
+hiddenpair:{n:"Hidden Pair",l:3,d:"Two digits fit only the same two cells of a unit. Those cells must hold those digits, so all their other candidates go."},
+pointing:{n:"Pointing Pair/Triple (Locked Candidates, Type 1)",l:4,d:"Within a box, a digit’s candidates all lie in one line. The digit must be there, so it leaves the rest of that line."},
+claiming:{n:"Box/Line Reduction, or Claiming (Locked Candidates, Type 2)",l:4,d:"Within a line, a digit’s candidates all lie in one box, so it leaves the box’s other cells."},
+xwing:{n:"X-Wing",l:5,d:"A digit has exactly two cells in each of two lines, aligned on the same two crossing lines. It must fill one diagonal, so it leaves the rest of the crossing lines."},
+xywing:{n:"XY-Wing (Y-Wing)",l:6,d:"A pivot with {A,B} sees wings {A,C} and {B,C}. One wing is always C, so cells that see both wings can’t be C."}};
+function mk(V){const C=new Int16Array(81);for(let i=0;i<81;i++)if(!V[i]){let m=1022;for(let j=0;j<81;j++)if(P[i][j]&&V[j])m&=~bit(V[j]);C[i]=m}return{V,C}}
+function place(S,i,d){S.V[i]=d;S.C[i]=0;for(let j=0;j<81;j++)if(P[i][j])S.C[j]&=~bit(d)}
+function apply(S,s){if(s.place)place(S,s.place[0],s.place[1]);for(const[i,m]of s.elim||[])S.C[i]&=~m}
+const empt=(S,u)=>U[u].filter(i=>!S.V[i]);
+function fFull(S){for(let u=0;u<27;u++){const e=empt(S,u);if(e.length===1){let m=1022;for(const i of U[u])if(S.V[i])m&=~bit(S.V[i]);const d=dg(m)[0];return{t:"fullhouse",place:[e[0],d],cells:U[u],tgt:[e[0]],f:[d],text:`${cap(UN(u))} has only one empty cell, ${rc(e[0])}. The one digit it’s missing is ${d}.`}}}return null}
+function fLast(S){for(let d=1;d<=9;d++){const pl=[];for(let i=0;i<81;i++)if(S.V[i]===d)pl.push(i);if(pl.length===8){const c=[];for(let i=0;i<81;i++)if(!S.V[i]&&S.C[i]&bit(d))c.push(i);if(c.length===1)return{t:"lastdigit",place:[c[0],d],cells:pl,tgt:[c[0]],f:[d],text:`The digit ${d} is already placed 8 times (highlighted), so the 9th must go in ${rc(c[0])}.`}}}return null}
+function fScan(S){for(let d=1;d<=9;d++)for(let u=18;u<27;u++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===1){const pl=[];for(let i=0;i<81;i++)if(S.V[i]===d)pl.push(i);return{t:"scanning",place:[c[0],d],cells:pl,tgt:[c[0]],f:[d],text:`Look at every ${d} already placed (highlighted). Their rows and columns block ${d} from all but one empty cell in ${UN(u)}: ${rc(c[0])}.`}}}return null}
+function fNaked(S){for(let i=0;i<81;i++)if(!S.V[i]&&pc(S.C[i])===1){const d=dg(S.C[i])[0];return{t:"naked1",place:[i,d],cells:[i],tgt:[i],f:[d],text:`${rc(i)} has only one candidate left: ${d}. Every other digit already appears in its row, column or box.`}}return null}
+function fHidden(S){for(let u=0;u<27;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===1)return{t:"hidden1",place:[c[0],d],cells:U[u],tgt:[c[0]],f:[d],text:`In ${UN(u)}, the digit ${d} fits in only one cell: ${rc(c[0])}. The cell may have other candidates, but ${d} has nowhere else to go in this unit.`}}return null}
+function fNP(S){for(let u=0;u<27;u++){const e=U[u].filter(i=>!S.V[i]&&pc(S.C[i])===2);for(let a=0;a<e.length;a++)for(let b=a+1;b<e.length;b++)if(S.C[e[a]]===S.C[e[b]]){const m=S.C[e[a]],el=[];for(const j of U[u])if(!S.V[j]&&j!==e[a]&&j!==e[b]&&S.C[j]&m)el.push([j,S.C[j]&m]);if(el.length){const[x,y]=dg(m);return{t:"nakedpair",elim:el,cells:[e[a],e[b]],tgt:el.map(q=>q[0]),f:[x,y],text:`${rc(e[a])} and ${rc(e[b])} both hold only {${x},${y}}. Those two digits must fill those two cells, so ${x} and ${y} can be removed from the other cells in ${UN(u)} (struck through in red).`}}}}return null}
+function fHP(S){for(let u=0;u<27;u++){const pos={};for(let d=1;d<=9;d++)pos[d]=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));for(let a=1;a<9;a++)for(let b=a+1;b<=9;b++){const pa=pos[a],pb=pos[b];if(pa.length===2&&pb.length===2&&pa[0]===pb[0]&&pa[1]===pb[1]){const m=bit(a)|bit(b),el=[];for(const j of pa)if(S.C[j]&~m)el.push([j,S.C[j]&~m]);if(el.length)return{t:"hiddenpair",elim:el,cells:pa,tgt:pa,f:[a,b],text:`In ${UN(u)}, the digits ${a} and ${b} fit only in ${rc(pa[0])} and ${rc(pa[1])}. Those cells must hold ${a} and ${b}, so every other candidate can be removed from them.`}}}}return null}
+function fPoint(S){for(let u=18;u<27;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length<2)continue;for(const line of[0,1]){const k=c.map(i=>line?i%9:Math.floor(i/9));if(k.every(v=>v===k[0])){const el=[];for(const j of U[(line?9:0)+k[0]])if(!U[u].includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);if(el.length)return{t:"pointing",elim:el,cells:c,tgt:el.map(q=>q[0]),f:[d],text:`In ${UN(u)}, ${d} can only go in ${UN((line?9:0)+k[0])} (${c.map(rc).join(", ")}). So that box’s ${d} is in this line, and ${d} can be removed from the rest of the line.`}}}}return null}
+function fClaim(S){for(let u=0;u<18;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length<2)continue;const b=c.map(i=>Math.floor(i/27)*3+Math.floor(i%9/3));if(b.every(v=>v===b[0])){const el=[];for(const j of U[18+b[0]])if(!U[u].includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);if(el.length)return{t:"claiming",elim:el,cells:c,tgt:el.map(q=>q[0]),f:[d],text:`In ${UN(u)}, ${d} can only go inside ${UN(18+b[0])} (${c.map(rc).join(", ")}). So that box’s ${d} is in this line, and ${d} can be removed from the box’s other cells.`}}}return null}
+function fX(S){for(let d=1;d<=9;d++)for(const line of[0,1]){const two=[];for(let k=0;k<9;k++){const c=U[(line?9:0)+k].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===2)two.push(c)}
+const key=i=>line?Math.floor(i/9):i%9;for(let a=0;a<two.length;a++)for(let b=a+1;b<two.length;b++){const A=two[a],B=two[b];if(key(A[0])===key(B[0])&&key(A[1])===key(B[1])){const el=[];for(const q of[key(A[0]),key(A[1])])for(const j of U[(line?0:9)+q])if(!A.includes(j)&&!B.includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);if(el.length){const w=line?"columns":"rows",x=line?"rows":"columns";return{t:"xwing",elim:el,cells:[...A,...B],tgt:el.map(q=>q[0]),f:[d],text:`In two ${w}, the digit ${d} has exactly two possible cells each (${[...A,...B].map(rc).join(", ")}), lined up in the same two ${x}. ${d} must take one diagonal of this rectangle, so ${d} can be removed from the rest of those two ${x}.`}}}}}return null}
+function fXY(S){for(let p=0;p<81;p++){if(S.V[p]||pc(S.C[p])!==2)continue;const w=[];for(let q=0;q<81;q++)if(P[p][q]&&!S.V[q]&&pc(S.C[q])===2&&pc(S.C[q]&S.C[p])===1)w.push(q);
+for(let a=0;a<w.length;a++)for(let b=a+1;b<w.length;b++){const q1=w[a],q2=w[b],x=S.C[q1]&~S.C[p];if(x!==(S.C[q2]&~S.C[p]))continue;if((S.C[q1]&S.C[p])===(S.C[q2]&S.C[p]))continue;const el=[];for(let j=0;j<81;j++)if(j!==p&&j!==q1&&j!==q2&&!S.V[j]&&P[q1][j]&&P[q2][j]&&S.C[j]&x)el.push([j,x]);
+if(el.length){const c=dg(x)[0],[A,B]=dg(S.C[p]);return{t:"xywing",elim:el,cells:[p,q1,q2],tgt:el.map(q=>q[0]),f:[c],text:`Pivot ${rc(p)} holds {${A},${B}}. Wing ${rc(q1)} holds {${dg(S.C[q1])}} and wing ${rc(q2)} holds {${dg(S.C[q2])}}. Whichever way the pivot goes, one wing must be ${c}, so ${c} can be removed from every cell that sees both wings.`}}}}return null}
+const FIND=[fFull,fLast,fScan,fNaked,fHidden,fNP,fHP,fPoint,fClaim,fX,fXY],LV=[1,1,1,2,2,3,3,4,4,5,6];
+function nextStep(S,maxL){for(let k=0;k<FIND.length;k++)if(LV[k]<=maxL){const s=FIND[k](S);if(s)return s}return null}
+function logicSolve(V,maxL){const S=mk(V.slice());let hard=0;for(;;){if(S.V.every(x=>x))return{ok:true,hard};const s=nextStep(S,maxL);if(!s)return{ok:false,hard};hard=Math.max(hard,TECH[s.t].l);apply(S,s)}}
+function fullGrid(){const g=new Array(81).fill(0),R=Array(9).fill(0),Cc=Array(9).fill(0),B=Array(9).fill(0);
+function go(i){if(i===81)return true;const r=Math.floor(i/9),c=i%9,b=Math.floor(r/3)*3+Math.floor(c/3);for(const d of shuffle([1,2,3,4,5,6,7,8,9])){const m=bit(d);if(R[r]&m||Cc[c]&m||B[b]&m)continue;g[i]=d;R[r]|=m;Cc[c]|=m;B[b]|=m;if(go(i+1))return true;g[i]=0;R[r]&=~m;Cc[c]&=~m;B[b]&=~m}return false}go(0);return g}
+function generate(L,ms){const t0=Date.now();let best=null;do{const sol=fullGrid(),V=sol.slice();for(const i of shuffle([...Array(81).keys()])){const d=V[i];V[i]=0;if(!logicSolve(V,L).ok)V[i]=d}
+const r=logicSolve(V,L);if(!best||r.hard>best.hard)best={V:V.slice(),sol,hard:r.hard};if(r.hard>=L)break}while(Date.now()-t0<ms);return best}
+/* ---------- UI ---------- */
+let S,sol,giv=[],sel=null,foc=0,step=null,hints=0,mist=0,info="",showC=false;
+function render(){let h="";for(let i=0;i<81;i++){const v=S.V[i],r=Math.floor(i/9),c=i%9;let cls="c";if(c%3===2&&c<8)cls+=" br";if(r%3===2&&r<8)cls+=" bb";if(giv[i])cls+=" g";if(foc&&v===foc)cls+=" fo";if(i===sel)cls+=" sel";
+if(step){if(step.cells.includes(i))cls+=" inv";if(step.tgt.includes(i))cls+=" tgt"}
+let inner="";if(v)inner=`<span class="d">${v}</span>`;else if(showC||step){const em=step&&step.elim?(step.elim.find(q=>q[0]===i)||[0,0])[1]:0;inner='<div class="m">'+[1,2,3,4,5,6,7,8,9].map(d=>{const on=S.C[i]&bit(d);return`<i class="${on?(em&bit(d)?"x":(step&&step.f.includes(d)?"k":"")):""}">${on?d:""}</i>`}).join("")+"</div>"}
+h+=`<div class="${cls}" data-i="${i}">${inner}</div>`}
+$("g").innerHTML=h;const done=S.V.every(x=>x);$("st").textContent=done?`Solved! Hints used: ${hints}. Mistakes: ${mist}.`:`${info} Hints: ${hints} · Mistakes: ${mist}`}
+function showHint(){hints++;step=nextStep(S,6);const hc=$("hc");if(!step){hc.innerHTML='<div class="card"><b>No technique I know applies here.</b><p class="k2">This puzzle may need a method beyond Level 6, such as chains.</p></div>';render();return}
+const t=TECH[step.t];$("cands").checked=showC=true;hc.innerHTML=`<div class="card"><h2>Hint</h2><b>${t.n}</b><span class="tag">Level ${t.l}</span><p>${step.text}</p><p class="k2">${t.d}</p><button class="p" id="app">${step.place?"Place the digit":"Remove the candidates"}</button></div>`;
+$("app").onclick=()=>{apply(S,step);step=null;hc.innerHTML="";render()};render()}
+function enter(d){if(S.V.every(x=>x))return;if(sel!==null&&!S.V[sel]){if(sol[sel]===d){place(S,sel,d);step=null;$("hc").innerHTML=""}else{mist++}}else foc=foc===d?0:d;render()}
+function newPuzzle(){const L=+$("lvl").value;$("st").textContent="Making a puzzle…";$("g").style.opacity=.5;setTimeout(()=>{const p=generate(L,2500);sol=p.sol;giv=p.V.map(x=>!!x);S=mk(p.V.slice());sel=null;foc=0;step=null;hints=0;mist=0;$("hc").innerHTML="";
+info=p.hard>=L?`Level ${L} puzzle.`:`Closest I found needs Level ${p.hard}; try again for a harder one.`;$("g").style.opacity=1;render()},30)}
+$("g").onclick=e=>{const c=e.target.closest(".c");if(c){sel=+c.dataset.i;if(S.V[sel])foc=S.V[sel];render()}};
+$("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(d=>`<button data-d="${d}">${d}</button>`).join("");
+$("pad").onclick=e=>{const b=e.target.closest("button");if(b)enter(+b.dataset.d)};
+document.addEventListener("keydown",e=>{if(/^[1-9]$/.test(e.key)&&S)enter(+e.key)});
+$("new").onclick=newPuzzle;$("hint").onclick=()=>{if(S&&!S.V.every(x=>x))showHint()};$("cands").onchange=e=>{showC=e.target.checked;render()};
+newPuzzle();
+</script>
+</body>
+</html>
