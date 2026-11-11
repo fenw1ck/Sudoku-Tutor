@@ -30,34 +30,44 @@ select{flex:1;min-width:0}
 .tag{font-size:12px;background:var(--acc);color:var(--accink);border-radius:20px;padding:2px 9px;margin-left:6px;font-weight:600}
 .k2{color:var(--mute);font-size:14px}h2{font:700 12px system-ui;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);margin:0 0 6px}
 details{margin:10px 0}summary{cursor:pointer;font-weight:600}.gd p{margin:6px 0;font-size:14px}
+.tabs{display:flex;gap:6px;margin:4px 0 10px}.tabs button{flex:1}.tabs .on,button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.pad button.done{opacity:.28;text-decoration:line-through}.el{background:var(--elbg)}:root{--elbg:#f6d6cf}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--elbg:#5a2d26}}:root[data-theme="dark"]{--elbg:#5a2d26}
+.chips button{margin:3px 4px 3px 0;padding:6px 10px;font-size:13px}.gd2 p,.gd2 li{font-size:14px;margin:6px 0}a{color:var(--acc)}
 </style>
 </head>
 <body>
 <main>
 <h1>Sudoku Tutor</h1>
-<p class="sub">Pick a level, solve, and ask for a hint whenever you’re stuck. Each hint names the technique and shows how it works.</p>
+<div class="tabs" id="tabs"><button data-t="learn" class="on">Learn</button><button data-t="play">Play</button><button data-t="guide">Guide</button></div>
+<div id="bd">
+<p class="sub" id="sub"></p>
 <div class="row"><select id="lvl" aria-label="Level">
-<option value="1">Level 1: Full House, Last Digit, Scanning</option>
-<option value="2">Level 2: + Naked and Hidden Singles</option>
-<option value="3">Level 3: + Naked and Hidden Pairs</option>
-<option value="4">Level 4: + Pointing and Claiming</option>
-<option value="5">Level 5: + X-Wing</option>
-<option value="6">Level 6: + XY-Wing</option></select><button class="p" id="new">New puzzle</button></div>
+<option value="1">Level 1: Full House, Last Digit, Scanning</option><option value="2">Level 2: + Naked and Hidden Singles</option><option value="3">Level 3: + Naked and Hidden Pairs</option><option value="4">Level 4: + Pointing and Claiming</option><option value="5">Level 5: + X-Wing</option><option value="6">Level 6: + XY-Wing</option></select><button class="p" id="new">New puzzle</button></div>
 <div class="k2" id="st"></div>
 <div id="g"></div>
 <div class="pad" id="pad"></div>
-<div class="row"><button class="p" id="hint">Hint</button><label class="k2"><input type="checkbox" id="cands"> Show candidates</label></div>
+<div class="row"><button id="nt">✏️ Notes: off</button><button id="fill">Fill notes</button><button class="p" id="hint">Hint</button></div>
 <div id="hc"></div>
-<details class="card gd"><summary>Technique guide</summary>
-<p><b>Level 1.</b> <i>Full House:</i> a unit with one empty cell. <i>Last Digit:</i> a digit placed 8 times has a forced 9th spot. <i>Scanning (Cross-Hatching):</i> the digit’s rows and columns block all but one cell of a box.</p>
-<p><b>Level 2.</b> <i>Naked Single:</i> a cell with one candidate. <i>Hidden Single:</i> a digit with only one possible cell in a row, column or box.</p>
-<p><b>Level 3.</b> <i>Naked Pair:</i> two cells share the same two candidates, so those digits leave the rest of the unit. <i>Hidden Pair:</i> two digits fit only the same two cells, so those cells lose their other candidates.</p>
-<p><b>Level 4.</b> <i>Pointing Pair/Triple (Locked Candidates 1):</i> in a box, a digit lines up in one row or column, so it leaves the rest of that line. <i>Box/Line Reduction, or Claiming (Locked Candidates 2):</i> in a line, a digit sits in one box, so it leaves the rest of that box.</p>
-<p><b>Level 5.</b> <i>X-Wing:</i> a digit has two spots in each of two lines, and they align on the same two crossing lines. It leaves the rest of those crossing lines.</p>
-<p><b>Level 6.</b> <i>XY-Wing:</i> a pivot {A,B} sees wings {A,C} and {B,C}. Cells that see both wings can’t be C.</p>
-<p>Levels 7 and 8 (chains, colouring, uniqueness techniques and Almost Locked Sets) aren’t generated here yet.</p></details>
+<div class="card"><h2>Techniques that apply right now</h2><div class="chips" id="sk"></div><p class="k2">Tap one to highlight where it works.</p></div>
+</div>
+<div id="gd" style="display:none" class="card gd2">
+<h2>Guide</h2>
+<p><b>Level 1.</b> <i>Full House</i>: a unit with one empty cell. <i>Last Digit</i>: a digit placed 8 times has a forced 9th spot. <i>Scanning (Cross-Hatching)</i>: the digit’s rows and columns block all but one cell of a box.</p>
+<p><b>Level 2.</b> <i>Naked Single</i>: a cell with one candidate. <i>Hidden Single</i>: a digit with only one possible cell in a unit.</p>
+<p><b>Level 3.</b> <i>Naked Pair</i>: two cells share the same two candidates, so those digits leave the rest of the unit. <i>Hidden Pair</i>: two digits fit only the same two cells, so those cells lose their other candidates.</p>
+<p><b>Level 4.</b> <i>Pointing Pair/Triple</i>: in a box a digit lines up in one row or column, so it leaves the rest of that line. <i>Claiming (Box/Line Reduction)</i>: in a line a digit sits in one box, so it leaves the rest of the box.</p>
+<p><b>Level 5.</b> <i>X-Wing</i>: a digit has two spots in each of two lines, aligned on the same two crossing lines, so it leaves the rest of those lines.</p>
+<p><b>Level 6.</b> <i>XY-Wing</i>: a pivot {A,B} sees wings {A,C} and {B,C}. Cells that see both wings can’t be C.</p>
+<p><b>Levels 7 and 8.</b> Chains, colouring, uniqueness patterns and Almost Locked Sets aren’t generated here yet. The tutorial explains all 26 techniques.</p>
+<h2>How to use this page</h2>
+<ul><li><b>Learn:</b> pick a level. I fill in a few easy cells, show you the technique on a real cell, then mark a green square where you apply it yourself. Hint shows the relationship.</li>
+<li><b>Play:</b> pick a level and solve freely. Hint shows one answer at a time.</li>
+<li><b>Notes:</b> turn on Notes, then tap a cell and the digits to write pencil marks. If your notes form a pattern (such as 347, 34, 34 in a row), the page will highlight it and offer to clean up your notes.</li>
+<li>Digits turn grey on the pad once all nine are placed. Tap a digit with no empty cell selected to highlight it everywhere.</li></ul>
+<p><a href="https://claude.ai/artifact/VRb99n8gZ1A6G5KSNEMvU4" target="_blank" rel="noopener">Read the full Escalating Skills Tutorial</a> (worked example for each technique, plus how to solve faster).</p></div>
 </main>
 <script>
+
 const $=id=>document.getElementById(id),rnd=n=>Math.floor(Math.random()*n);
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
 const bit=d=>1<<d,pc=m=>{let n=0;while(m){n+=m&1;m>>=1}return n},dg=m=>{const r=[];for(let d=1;d<=9;d++)if(m&bit(d))r.push(d);return r};
@@ -104,24 +114,52 @@ function go(i){if(i===81)return true;const r=Math.floor(i/9),c=i%9,b=Math.floor(
 function generate(L,ms){const t0=Date.now();let best=null;do{const sol=fullGrid(),V=sol.slice();for(const i of shuffle([...Array(81).keys()])){const d=V[i];V[i]=0;if(!logicSolve(V,L).ok)V[i]=d}
 const r=logicSolve(V,L);if(!best||r.hard>best.hard)best={V:V.slice(),sol,hard:r.hard};if(r.hard>=L)break}while(Date.now()-t0<ms);return best}
 /* ---------- UI ---------- */
-let S,sol,giv=[],sel=null,foc=0,step=null,hints=0,mist=0,info="",showC=false;
-function render(){let h="";for(let i=0;i<81;i++){const v=S.V[i],r=Math.floor(i/9),c=i%9;let cls="c";if(c%3===2&&c<8)cls+=" br";if(r%3===2&&r<8)cls+=" bb";if(giv[i])cls+=" g";if(foc&&v===foc)cls+=" fo";if(i===sel)cls+=" sel";
-if(step){if(step.cells.includes(i))cls+=" inv";if(step.tgt.includes(i))cls+=" tgt"}
-let inner="";if(v)inner=`<span class="d">${v}</span>`;else if(showC||step){const em=step&&step.elim?(step.elim.find(q=>q[0]===i)||[0,0])[1]:0;inner='<div class="m">'+[1,2,3,4,5,6,7,8,9].map(d=>{const on=S.C[i]&bit(d);return`<i class="${on?(em&bit(d)?"x":(step&&step.f.includes(d)?"k":"")):""}">${on?d:""}</i>`}).join("")+"</div>"}
+let mode="learn",S,sol,giv=[],N=new Int16Array(81),sel=null,foc=0,notesOn=false,view=null,L=1,LL=1,hints=0,mist=0,info="",dismissed=new Set(),pop=null,avail=[];
+const KEYS=["fullhouse","lastdigit","scanning","naked1","hidden1","nakedpair","hiddenpair","pointing","claiming","xwing","xywing"];
+const mini=f=>'<div class="m">'+[1,2,3,4,5,6,7,8,9].map(f).join("")+"</div>",setCard=h=>{$("hc").innerHTML=h};
+function hintChain(S0,maxL){const T=mk(S0.V.slice()),steps=[];for(let g=0;g<200;g++){const s=nextStep(T,maxL);if(!s)return null;steps.push(s);apply(T,s);if(s.place){const non=steps.filter(x=>!x.place),key=non.length?non.reduce((x,y)=>TECH[y.t].l>=TECH[x.t].l?y:x):s;return{key,target:s.place[0],digit:s.place[1],lv:TECH[key.t].l}}}return null}
+function findLesson(l){for(let n=0;n<90;n++){const c=hintChain(S,l);if(!c)return null;if(c.lv>=l)return c;place(S,c.target,c.digit);giv[c.target]=true}return null}
+function render(){const cnt=Array(10).fill(0);S.V.forEach(v=>cnt[v]++);const st=view&&view.step,el=(st&&st.elim)||[],show=view&&!view.hidden;let h="";
+for(let i=0;i<81;i++){const v=S.V[i],r=Math.floor(i/9),c=i%9;let cls="c";if(c%3===2&&c<8)cls+=" br";if(r%3===2&&r<8)cls+=" bb";if(giv[i])cls+=" g";if(foc&&v===foc)cls+=" fo";if(i===sel)cls+=" sel";
+const inv=show&&st.cells.includes(i),e=show&&el.find(q=>q[0]===i);if(inv)cls+=" inv";if(e)cls+=" el";if(view&&view.target===i)cls+=" tgt";
+let inner="";if(v)inner=`<span class="d">${v}</span>`;
+else if(inv||e){const em=e?e[1]:0,src=view.notes?N:S.C;inner=mini(d=>{const on=src[i]&bit(d),x=on&&(em&bit(d)),k=on&&st.f.includes(d);return`<i class="${x?"x":k?"k":""}">${x||k?d:""}</i>`})}
+else if(N[i])inner=mini(d=>`<i>${N[i]&bit(d)?d:""}</i>`);
 h+=`<div class="${cls}" data-i="${i}">${inner}</div>`}
-$("g").innerHTML=h;const done=S.V.every(x=>x);$("st").textContent=done?`Solved! Hints used: ${hints}. Mistakes: ${mist}.`:`${info} Hints: ${hints} · Mistakes: ${mist}`}
-function showHint(){hints++;step=nextStep(S,6);const hc=$("hc");if(!step){hc.innerHTML='<div class="card"><b>No technique I know applies here.</b><p class="k2">This puzzle may need a method beyond Level 6, such as chains.</p></div>';render();return}
-const t=TECH[step.t];$("cands").checked=showC=true;hc.innerHTML=`<div class="card"><h2>Hint</h2><b>${t.n}</b><span class="tag">Level ${t.l}</span><p>${step.text}</p><p class="k2">${t.d}</p><button class="p" id="app">${step.place?"Place the digit":"Remove the candidates"}</button></div>`;
-$("app").onclick=()=>{apply(S,step);step=null;hc.innerHTML="";render()};render()}
-function enter(d){if(S.V.every(x=>x))return;if(sel!==null&&!S.V[sel]){if(sol[sel]===d){place(S,sel,d);step=null;$("hc").innerHTML=""}else{mist++}}else foc=foc===d?0:d;render()}
-function newPuzzle(){const L=+$("lvl").value;$("st").textContent="Making a puzzle…";$("g").style.opacity=.5;setTimeout(()=>{const p=generate(L,2500);sol=p.sol;giv=p.V.map(x=>!!x);S=mk(p.V.slice());sel=null;foc=0;step=null;hints=0;mist=0;$("hc").innerHTML="";
-info=p.hard>=L?`Level ${L} puzzle.`:`Closest I found needs Level ${p.hard}; try again for a harder one.`;$("g").style.opacity=1;render()},30)}
-$("g").onclick=e=>{const c=e.target.closest(".c");if(c){sel=+c.dataset.i;if(S.V[sel])foc=S.V[sel];render()}};
-$("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(d=>`<button data-d="${d}">${d}</button>`).join("");
-$("pad").onclick=e=>{const b=e.target.closest("button");if(b)enter(+b.dataset.d)};
-document.addEventListener("keydown",e=>{if(/^[1-9]$/.test(e.key)&&S)enter(+e.key)});
-$("new").onclick=newPuzzle;$("hint").onclick=()=>{if(S&&!S.V.every(x=>x))showHint()};$("cands").onchange=e=>{showC=e.target.checked;render()};
-newPuzzle();
+$("g").innerHTML=h;$("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(d=>`<button data-d="${d}" class="${cnt[d]>=9?"done":""}">${d}</button>`).join("");
+avail=FIND.map(f=>f(S));$("sk").innerHTML=avail.map((s,k)=>s?`<button data-k="${k}">${TECH[KEYS[k]].n.split(" (")[0]} · L${TECH[KEYS[k]].l}</button>`:"").join("")||'<span class="k2">None right now.</span>';
+$("st").textContent=S.V.every(x=>x)?`Solved! Hints used: ${hints}. Mistakes: ${mist}.`:`${info} Hints: ${hints} · Mistakes: ${mist}`;
+$("nt").textContent="✏️ Notes: "+(notesOn?"on":"off");$("nt").classList.toggle("on",notesOn)}
+function relCard(v){const t=TECH[v.step.t];setCard(`<div class="card"><h2>${v.lesson?"Lesson":"Hint"}</h2><b>${t.n}</b><span class="tag">Level ${t.l}</span><p>${v.step.text}</p>${v.step.place?"":`<p>After this (and any easier clean-up), <b>${rc(v.c.target)}</b> has just one possible digit. Enter it in the green square.</p>`}<p class="k2">${t.d}</p>${v.lesson?'<button class="p" id="show">Got it, fill it in</button>':""}</div>`)}
+function nextLesson(msg){const c=findLesson(LL);if(!c){view=null;setCard(`<div class="card"><b>${msg||""}No more examples of this level here.</b><p class="k2">Keep solving with Hint, or start a new puzzle.</p></div>`);return}
+view={step:c.key,target:c.target,hidden:true,c};setCard(`<div class="card"><h2>Your turn</h2><p>${msg||""}Another spot where <b>${TECH[c.key.t].n}</b> works. Find the answer for the green square. Stuck? Tap Hint to see the relationship.</p></div>`)}
+function put(i,d,quiet){place(S,i,d);N[i]=0;for(let j=0;j<81;j++)if(P[i][j])N[j]&=~bit(d);const wasT=view&&view.target===i;if(wasT){view=null;setCard("");if(mode==="learn"&&!quiet)nextLesson("<b>Correct!</b> ")}}
+function enter(d){if(S.V.every(x=>x))return;if(sel!==null&&!S.V[sel]){if(notesOn){N[sel]^=bit(d);detect();return render()}if(sol[sel]===d)put(sel,d);else mist++}else foc=foc===d?0:d;render()}
+function detect(){const T=mk(S.V.slice());for(let i=0;i<81;i++)if(!S.V[i]&&N[i])T.C[i]=N[i];
+for(let k=5;k<FIND.length;k++){const s=FIND[k](T);if(!s||!s.elim||!s.cells.every(i=>!!N[i]))continue;const el=s.elim.filter(([i,m])=>N[i]&m).map(([i,m])=>[i,N[i]&m]);if(!el.length)continue;const key=s.t+JSON.stringify(el);if(dismissed.has(key))continue;
+pop={s:{...s,elim:el,tgt:el.map(q=>q[0])},key};view={step:pop.s,target:null,notes:true};const t=TECH[s.t];
+setCard(`<div class="card"><h2>You found a pattern</h2><b>${t.n}</b><span class="tag">Level ${t.l}</span><p>${s.text}</p><p class="k2">${t.d} The struck-through notes can go, even though you don’t know the other digits yet.</p><button class="p" id="pa">Remove them from my notes</button> <button id="pn">Not now</button></div>`);return}}
+function newPuzzle(){L=+$("lvl").value;$("st").textContent="Making a puzzle…";$("g").style.opacity=.5;setTimeout(()=>{const p=generate(L,2500);LL=Math.max(1,Math.min(L,p.hard));sol=p.sol;giv=p.V.map(x=>!!x);S=mk(p.V.slice());N=new Int16Array(81);sel=null;foc=0;view=null;hints=0;mist=0;dismissed=new Set();setCard("");
+info=p.hard>=L?`Level ${L} puzzle.`:`Closest I found needs Level ${p.hard}; tap New puzzle for a harder one.`;
+if(mode==="learn"){const c=findLesson(LL);if(c){view={step:c.key,target:c.target,c,lesson:true};relCard(view)}else setCard('<div class="card"><b>This puzzle never needs this technique.</b> Tap New puzzle to try again.</div>')}
+$("g").style.opacity=1;render()},30)}
+function setMode(t){const g=t==="guide";document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));$("bd").style.display=g?"none":"";$("gd").style.display=g?"":"none";if(g)return;const ch=mode!==t;mode=t;
+$("sub").textContent=t==="learn"?"I’ll show a technique on a real cell, then you apply it to the green square.":"Solve freely. Hint shows one answer at a time. Turn on Notes to pencil in candidates.";if(ch||!S)newPuzzle()}
+document.addEventListener("click",e=>{const b=e.target.closest("button,.c");if(!b)return;
+if(b.dataset.t)return setMode(b.dataset.t);
+if(b.id==="pa"){for(const[i,m]of pop.s.elim)N[i]&=~m;const one=pop.s.elim.map(q=>q[0]).find(i=>pc(N[i])===1);view=null;setCard(one!==undefined?`<div class="card"><b>${rc(one)} now has one note: ${dg(N[one])[0]}.</b> Turn Notes off and enter it.</div>`:"");return render()}
+if(b.id==="pn"){dismissed.add(pop.key);view=null;setCard("");return render()}
+if(b.id==="show"){const c=view.c;put(c.target,c.digit,true);nextLesson("That’s the idea. Now you try. ");return render()}
+if(b.dataset.k!==undefined){const s=avail[+b.dataset.k];if(!s)return;view={step:s,target:s.place?s.place[0]:null,c:{target:s.place?s.place[0]:null}};setCard(`<div class="card"><b>${TECH[s.t].n}</b><p class="k2">${TECH[s.t].d}</p><p class="k2">The highlighted cells are where it applies.</p></div>`);return render()}
+if(b.dataset.d){return enter(+b.dataset.d)}
+if(b.classList.contains("c")){sel=+b.dataset.i;if(S.V[sel])foc=S.V[sel];render()}});
+$("new").onclick=newPuzzle;
+$("nt").onclick=()=>{notesOn=!notesOn;render()};$("fill").onclick=()=>{N=Int16Array.from(S.C);render()};
+$("hint").onclick=()=>{if(S.V.every(x=>x))return;hints++;if(view&&view.hidden&&view.c&&view.c.key){view.hidden=false;relCard(view);return render()}
+const c=hintChain(S,mode==="learn"?LL:6);if(!c){view=null;setCard('<div class="card"><b>No technique I know applies.</b><p class="k2">This puzzle may need a chain or another method beyond Level 6.</p></div>');return render()}
+view={step:c.key,target:c.target,c};relCard(view);render()};
+document.addEventListener("keydown",e=>{if(!S)return;if(/^[1-9]$/.test(e.key))enter(+e.key);else if(e.key==="n"){notesOn=!notesOn;render()}else if((e.key==="Backspace"||e.key==="Delete")&&sel!==null&&!S.V[sel]){N[sel]=0;render()}});
+setMode("learn");
 </script>
 </body>
 </html>
