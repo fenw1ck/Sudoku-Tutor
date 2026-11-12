@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sudoku Tutor</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f4f1ea;--card:#fffdf8;--ink:#26292b;--mute:#6f7478;--line:#d9d3c6;--acc:#2f5d50;--accink:#fff;--sel:#cfe3da;--inv:#fbefc4;--tgt:#bfe3b4;--bad:#c4452f;--giv:#26292b;--usr:#2a5ea8}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#16181a;--card:#202325;--ink:#ece9e2;--mute:#9a9e9f;--line:#3a3f42;--acc:#7fb8a4;--accink:#10201b;--sel:#2c4a40;--inv:#4a4220;--tgt:#2f5a2b;--bad:#ee7a63;--giv:#ece9e2;--usr:#8db8f0}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#16181a;--card:#202325;--ink:#ece9e2;--mute:#9a9e9f;--line:#3a3f42;--acc:#7fb8a4;--accink:#10201b;--sel:#2c4a40;--inv:#4a4220;--tgt:#2f5a2b;--bad:#ee7a63;--giv:#ece9e2;--usr:#8db8f0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,system-ui,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:14px 12px 40px}
+h1{font:700 28px/1.1 Georgia,serif;margin:4px 0 2px}.sub{color:var(--mute);font-size:14px;margin:0 0 12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+select,button{font:600 15px system-ui,sans-serif;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px 12px}
+button.p{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+select{flex:1;min-width:0}
+#g{display:grid;grid-template-columns:repeat(9,1fr);width:100%;aspect-ratio:1;border:2px solid var(--ink);background:var(--card);margin:10px 0;user-select:none}
+.c{border:1px solid var(--line);display:grid;place-items:center;min-width:0;min-height:0;cursor:pointer;position:relative;overflow:hidden}
+.c.br{border-right:2px solid var(--ink)}.c.bb{border-bottom:2px solid var(--ink)}
+.d{font:600 clamp(16px,5.4vw,27px) Georgia,serif;color:var(--usr)}.g .d{color:var(--giv);font-weight:700}
+.fo{background:var(--sel)}.sel{background:var(--sel);outline:2px solid var(--acc);outline-offset:-2px}.inv{background:var(--inv)}.tgt{background:var(--tgt)}
+.m{display:grid;grid-template-columns:repeat(3,1fr);width:100%;height:100%;font:clamp(7px,2.3vw,11px)/1 system-ui,sans-serif;color:var(--mute)}
+.m i{font-style:normal;display:grid;place-items:center}.m .k{color:var(--acc);font-weight:800;font-size:1.25em}.m .x{color:var(--bad);text-decoration:line-through;font-weight:800;font-size:1.25em}
+.pad{display:grid;grid-template-columns:repeat(9,1fr);gap:4px}.pad button{padding:10px 0;font-size:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:10px 0}
+.tag{font-size:12px;background:var(--acc);color:var(--accink);border-radius:20px;padding:2px 9px;margin-left:6px;font-weight:600}
+.k2{color:var(--mute);font-size:14px}h2{font:700 12px system-ui;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);margin:0 0 6px}
+details{margin:10px 0}summary{cursor:pointer;font-weight:600}.gd p{margin:6px 0;font-size:14px}
+.tabs{display:flex;gap:6px;margin:4px 0 10px}.tabs button{flex:1}.tabs .on,button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.ln{background:#cfe6ff}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ln{background:#24405c}}
+.bounce{animation:bn .6s 2;position:relative;z-index:3}@keyframes bn{50%{transform:scale(1.22)}}.pre{opacity:.8}
+.rwb{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--acc);color:var(--accink);padding:8px 14px;border-radius:26px;box-shadow:0 4px 16px #0006;text-align:center;font-weight:700;animation:pp .5s;z-index:9}.rwb button{margin:4px 2px 0;padding:5px 10px;font-size:13px}@keyframes pp{from{transform:translateX(-50%) scale(.4);opacity:0}}
+.pad button.done{opacity:.28;text-decoration:line-through}.el{background:var(--elbg)}:root{--elbg:#f6d6cf}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--elbg:#5a2d26}}:root[data-theme="dark"]{--elbg:#5a2d26}
+.chips button{margin:3px 4px 3px 0;padding:6px 10px;font-size:13px}.gd2 p,.gd2 li{font-size:14px;margin:6px 0}a{color:var(--acc)}
+</style>
+</head>
+<body>
+<main>
+<h1>Sudoku Tutor</h1>
+<div class="tabs" id="tabs"><button data-t="learn" class="on">Learn</button><button data-t="play">Play</button><button data-t="guide">Guide</button><button data-t="resources">Resources</button></div>
+<div id="bd">
+<p class="sub" id="sub"></p>
+<div class="row"><select id="lvl" aria-label="Level">
+<option value="1">Level 1: Full House, Last Digit, Scanning</option><option value="2">Level 2: + Naked and Hidden Singles</option><option value="3">Level 3: + Naked and Hidden Pairs</option><option value="4">Level 4: + Pointing and Claiming</option><option value="5">Level 5: + X-Wing, Swordfish</option><option value="6">Level 6: + XY-Wing, XYZ-Wing, Skyscraper</option></select><button class="p" id="new">New puzzle</button></div>
+<label class="k2"><input type="checkbox" id="auto" checked> Auto-pick the next skill I haven’t mastered</label>
+<div class="k2" id="st"></div>
+<div style="position:relative"><div id="g"></div><div id="rw"></div></div>
+<div class="pad" id="pad"></div>
+<div class="k2" id="er" style="color:var(--bad);min-height:1.3em"></div>
+<div class="row"><button id="nt">✏️ Notes: off</button><button id="fill">Fill notes</button><button class="p" id="hint">Hint</button></div>
+<div class="row"><button id="pick"></button></div>
+<div id="hc"></div>
+<div class="card"><h2>Techniques that apply right now</h2><div class="chips" id="sk"></div><p class="k2">Tap one to highlight where it works.</p></div>
+<div class="card"><h2>Skills checklist</h2><div class="chips" id="ck"></div><p class="k2">Shows what this puzzle can use and what you’ve used. Tap a skill to make the next puzzle practise it. The count is saved on this device.</p></div>
+</div>
+<div id="rs" style="display:none" class="card gd2"><h2>Resources</h2>
+<h2>Learn from real people (video)</h2>
+<p>I could verify only one channel by name: <a href="https://www.youtube.com/@CrackingTheCryptic" target="_blank" rel="noopener"><b>Cracking the Cryptic</b></a> (YouTube), hosted by named people who solve puzzles live and explain every step. The links below are searches, not endorsements. I haven’t checked individual accounts, so use the tips underneath to confirm a creator is a real person.</p>
+<ul><li><a href="https://www.youtube.com/results?search_query=sudoku+x-wing+explained" target="_blank" rel="noopener">YouTube: X-Wing explained</a></li>
+<li><a href="https://www.youtube.com/results?search_query=sudoku+xy-wing+tutorial" target="_blank" rel="noopener">YouTube: XY-Wing tutorials</a></li>
+<li><a href="https://www.youtube.com/results?search_query=smart+hobbies+sudoku+advanced+tutorial" target="_blank" rel="noopener">YouTube: Smart Hobbies advanced sudoku series (named in my search results)</a></li>
+<li><a href="https://www.youtube.com/results?search_query=sudoku+snyder+notation+shorts" target="_blank" rel="noopener">YouTube Shorts: Snyder notation</a></li>
+<li><a href="https://www.tiktok.com/tag/sudoku" target="_blank" rel="noopener">TikTok: #sudoku</a></li>
+<li><a href="https://www.instagram.com/explore/tags/sudoku/" target="_blank" rel="noopener">Instagram: #sudoku</a></li></ul>
+<p><b>How to tell a human teacher:</b> a named person with a voice or face, an About page with a history, puzzles solved live with mistakes and corrections, and no “AI-generated” label.</p>
+<h2>Reading and reference</h2>
+<ul><li><a href="https://www.sudopedia.org" target="_blank" rel="noopener">Sudopedia</a>: technique definitions and names.</li>
+<li><a href="https://www.sudokuwiki.org/Strategy_Families" target="_blank" rel="noopener">SudokuWiki: strategy families</a>: worked examples and a solver.</li>
+<li><a href="http://hodoku.sourceforge.net" target="_blank" rel="noopener">HoDoKu</a>: solver and trainer by Bernhard Hobiger.</li>
+<li><a href="https://blog.krazydad.com/?p=39" target="_blank" rel="noopener">Krazydad: an index of sudoku strategies</a></li>
+<li>Crook, J. F. (2009). “A pencil-and-paper algorithm for solving Sudoku puzzles.” <i>Notices of the AMS</i>, 56(4).</li></ul>
+<h2>Citations for what built this</h2>
+<ul><li>Technique names and definitions follow Sudopedia and SudokuWiki. Snyder notation is credited to Thomas Snyder.</li>
+<li>Puzzles are generated in your browser by a logic solver written for this page. There are no external libraries.</li>
+<li>Euclid page: <a href="https://mathcs.clarku.edu/~djoyce/java/elements/elements.html" target="_blank" rel="noopener">David Joyce’s edition of Euclid’s Elements</a>.</li>
+<li>Written and tested with Claude (Anthropic).</li></ul></div>
+<div id="gd" style="display:none" class="card gd2">
+<h2>Guide</h2>
+<p><b>Level 1.</b> <i>Full House</i>: a unit with one empty cell. <i>Last Digit</i>: a digit placed 8 times has a forced 9th spot. <i>Scanning (Cross-Hatching)</i>: the digit’s rows and columns block all but one cell of a box.</p>
+<p><b>Level 2.</b> <i>Naked Single</i>: a cell with one candidate. <i>Hidden Single</i>: a digit with only one possible cell in a unit.</p>
+<p><b>Level 3.</b> <i>Naked Pair</i>: two cells share the same two candidates, so those digits leave the rest of the unit. <i>Hidden Pair</i>: two digits fit only the same two cells, so those cells lose their other candidates.</p>
+<p><b>Level 4.</b> <i>Pointing Pair/Triple</i>: in a box a digit lines up in one row or column, so it leaves the rest of that line. <i>Claiming (Box/Line Reduction)</i>: in a line a digit sits in one box, so it leaves the rest of the box.</p>
+<p><b>Level 5.</b> <i>X-Wing</i>: a digit has two spots in each of two lines, aligned on the same two crossing lines, so it leaves the rest of those lines.</p>
+<p><b>Level 6.</b> <i>XY-Wing</i>: a pivot {A,B} sees wings {A,C} and {B,C}. Cells that see both wings can’t be C.</p>
+<p><b>Levels 7 and 8.</b> Chains, colouring, uniqueness patterns and Almost Locked Sets aren’t generated here yet. The tutorial explains all 26 techniques.</p>
+<h2>How to use this page</h2>
+<ul><li><b>Learn:</b> pick a level. I fill in a few easy cells, show you the technique on a real cell, then mark a green square where you apply it yourself. Hint shows the relationship.</li>
+<li><b>Play:</b> pick a level and solve freely. Hint shows one answer at a time.</li>
+<li><b>Notes:</b> turn on Notes, then tap a cell and the digits to write pencil marks. If your notes form a pattern (such as 347, 34, 34 in a row), the page will highlight it and offer to clean up your notes.</li>
+<li>Digits turn grey on the pad once all nine are placed. Tap a digit with no empty cell selected to highlight it everywhere.</li></ul>
+<h2>Replayable examples</h2><div id="gx"></div>
+<p><a href="https://claude.ai/artifact/VRb99n8gZ1A6G5KSNEMvU4" target="_blank" rel="noopener">Read the full Escalating Skills Tutorial</a> (worked example for each technique, plus how to solve faster).</p></div>
+</main>
+<script>
+
+const $=id=>document.getElementById(id),rnd=n=>Math.floor(Math.random()*n);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=rnd(i+1);[a[i],a[j]]=[a[j],a[i]]}return a};
+const bit=d=>1<<d,pc=m=>{let n=0;while(m){n+=m&1;m>>=1}return n},dg=m=>{const r=[];for(let d=1;d<=9;d++)if(m&bit(d))r.push(d);return r};
+const rc=i=>"R"+(Math.floor(i/9)+1)+"C"+(i%9+1),cap=s=>s[0].toUpperCase()+s.slice(1);
+const U=[];for(let r=0;r<9;r++)U.push([...Array(9)].map((_,c)=>r*9+c));for(let c=0;c<9;c++)U.push([...Array(9)].map((_,r)=>r*9+c));
+for(let b=0;b<9;b++){const r0=Math.floor(b/3)*3,c0=b%3*3;U.push([0,1,2,3,4,5,6,7,8].map(k=>(r0+Math.floor(k/3))*9+c0+k%3))}
+const UN=u=>u<9?"row "+(u+1):u<18?"column "+(u-8):"box "+(u-17);
+const P=Array.from({length:81},()=>new Uint8Array(81));for(const u of U)for(const a of u)for(const b of u)if(a!==b)P[a][b]=1;
+const TECH={
+fullhouse:{n:"Full House",l:1,d:"A row, column or box with only one empty cell must take the one missing digit."},
+lastdigit:{n:"Last Digit",l:1,d:"Once a digit is placed 8 times, the 9th spot is forced."},
+scanning:{n:"Scanning (also called Cross-Hatching)",l:1,d:"A digit’s existing rows and columns block cells. If a box has one cell left for it, it goes there."},
+naked1:{n:"Naked Single",l:2,d:"A cell has only one candidate left."},
+hidden1:{n:"Hidden Single",l:2,d:"A digit has only one possible cell in a row, column or box, even if that cell has other candidates."},
+nakedpair:{n:"Naked Pair",l:3,d:"Two cells in a unit hold the same two candidates. Those digits must go in those cells, so they leave the rest of the unit."},
+hiddenpair:{n:"Hidden Pair",l:3,d:"Two digits fit only the same two cells of a unit. Those cells must hold those digits, so all their other candidates go."},
+pointing:{n:"Pointing Pair/Triple (Locked Candidates, Type 1)",l:4,d:"Within a box, a digit’s candidates all lie in one line. The digit must be there, so it leaves the rest of that line."},
+claiming:{n:"Box/Line Reduction, or Claiming (Locked Candidates, Type 2)",l:4,d:"Within a line, a digit’s candidates all lie in one box, so it leaves the box’s other cells."},
+xwing:{n:"X-Wing",l:5,d:"A digit has exactly two cells in each of two lines, aligned on the same two crossing lines. It must fill one diagonal, so it leaves the rest of the crossing lines."},
+xywing:{n:"XY-Wing (Y-Wing)",l:6,d:"A pivot with {A,B} sees wings {A,C} and {B,C}. One wing is always C, so cells that see both wings can’t be C."},
+swordfish:{n:"Swordfish",l:5,d:"Like X-Wing with three lines: a digit’s candidates in three rows sit inside the same three columns, so it leaves the rest of those columns (and the same with rows and columns swapped)."},
+xyzwing:{n:"XYZ-Wing",l:6,d:"A pivot {A,B,C} sees wings {A,C} and {B,C}. C is in the pivot or a wing, so any cell that sees all three can’t be C."},
+skyscraper:{n:"Skyscraper",l:6,d:"Two lines each hold a digit in exactly two cells, and one pair lines up. At least one of the other two ends is the digit, so cells that see both ends lose it."}};
+function mk(V){const C=new Int16Array(81);for(let i=0;i<81;i++)if(!V[i]){let m=1022;for(let j=0;j<81;j++)if(P[i][j]&&V[j])m&=~bit(V[j]);C[i]=m}return{V,C}}
+function place(S,i,d){S.V[i]=d;S.C[i]=0;for(let j=0;j<81;j++)if(P[i][j])S.C[j]&=~bit(d)}
+function apply(S,s){if(s.place)place(S,s.place[0],s.place[1]);for(const[i,m]of s.elim||[])S.C[i]&=~m}
+const empt=(S,u)=>U[u].filter(i=>!S.V[i]);
+function fFull(S){for(let u=0;u<27;u++){const e=empt(S,u);if(e.length===1){let m=1022;for(const i of U[u])if(S.V[i])m&=~bit(S.V[i]);const d=dg(m)[0];return{t:"fullhouse",place:[e[0],d],cells:U[u],tgt:[e[0]],f:[d],text:`${cap(UN(u))} has only one empty cell, ${rc(e[0])}. The one digit it’s missing is ${d}.`}}}return null}
+function fLast(S){for(let d=1;d<=9;d++){const pl=[];for(let i=0;i<81;i++)if(S.V[i]===d)pl.push(i);if(pl.length===8){const c=[];for(let i=0;i<81;i++)if(!S.V[i]&&S.C[i]&bit(d))c.push(i);if(c.length===1)return{t:"lastdigit",place:[c[0],d],cells:pl,tgt:[c[0]],f:[d],text:`The digit ${d} is already placed 8 times (highlighted), so the 9th must go in ${rc(c[0])}.`}}}return null}
+function fScan(S){for(let d=1;d<=9;d++)for(let u=18;u<27;u++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===1){const pl=[];for(let i=0;i<81;i++)if(S.V[i]===d)pl.push(i);return{t:"scanning",place:[c[0],d],cells:pl,tgt:[c[0]],f:[d],text:`Look at every ${d} already placed (highlighted). Their rows and columns block ${d} from all but one empty cell in ${UN(u)}: ${rc(c[0])}.`}}}return null}
+function fNaked(S){for(let i=0;i<81;i++)if(!S.V[i]&&pc(S.C[i])===1){const d=dg(S.C[i])[0];return{t:"naked1",place:[i,d],cells:[i],tgt:[i],f:[d],text:`${rc(i)} has only one candidate left: ${d}. Every other digit already appears in its row, column or box.`}}return null}
+function fHidden(S){for(let u=0;u<27;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===1)return{t:"hidden1",place:[c[0],d],cells:U[u],tgt:[c[0]],f:[d],text:`In ${UN(u)}, the digit ${d} fits in only one cell: ${rc(c[0])}. The cell may have other candidates, but ${d} has nowhere else to go in this unit.`}}return null}
+function fNP(S){for(let u=0;u<27;u++){const e=U[u].filter(i=>!S.V[i]&&pc(S.C[i])===2);for(let a=0;a<e.length;a++)for(let b=a+1;b<e.length;b++)if(S.C[e[a]]===S.C[e[b]]){const m=S.C[e[a]],el=[];for(const j of U[u])if(!S.V[j]&&j!==e[a]&&j!==e[b]&&S.C[j]&m)el.push([j,S.C[j]&m]);if(el.length){const[x,y]=dg(m);return{t:"nakedpair",elim:el,cells:[e[a],e[b]],tgt:el.map(q=>q[0]),f:[x,y],text:`${rc(e[a])} and ${rc(e[b])} both hold only {${x},${y}}. Those two digits must fill those two cells, so ${x} and ${y} can be removed from the other cells in ${UN(u)} (struck through in red).`}}}}return null}
+function fHP(S){for(let u=0;u<27;u++){const pos={};for(let d=1;d<=9;d++)pos[d]=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));for(let a=1;a<9;a++)for(let b=a+1;b<=9;b++){const pa=pos[a],pb=pos[b];if(pa.length===2&&pb.length===2&&pa[0]===pb[0]&&pa[1]===pb[1]){const m=bit(a)|bit(b),el=[];for(const j of pa)if(S.C[j]&~m)el.push([j,S.C[j]&~m]);if(el.length)return{t:"hiddenpair",elim:el,cells:pa,tgt:pa,f:[a,b],text:`In ${UN(u)}, the digits ${a} and ${b} fit only in ${rc(pa[0])} and ${rc(pa[1])}. Those cells must hold ${a} and ${b}, so every other candidate can be removed from them.`}}}}return null}
+function fPoint(S){for(let u=18;u<27;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length<2)continue;for(const line of[0,1]){const k=c.map(i=>line?i%9:Math.floor(i/9));if(k.every(v=>v===k[0])){const el=[];for(const j of U[(line?9:0)+k[0]])if(!U[u].includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);if(el.length)return{t:"pointing",elim:el,cells:c,tgt:el.map(q=>q[0]),f:[d],text:`In ${UN(u)}, ${d} can only go in ${UN((line?9:0)+k[0])} (${c.map(rc).join(", ")}). So that box’s ${d} is in this line, and ${d} can be removed from the rest of the line.`}}}}return null}
+function fClaim(S){for(let u=0;u<18;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length<2)continue;const b=c.map(i=>Math.floor(i/27)*3+Math.floor(i%9/3));if(b.every(v=>v===b[0])){const el=[];for(const j of U[18+b[0]])if(!U[u].includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);if(el.length)return{t:"claiming",elim:el,cells:c,tgt:el.map(q=>q[0]),f:[d],text:`In ${UN(u)}, ${d} can only go inside ${UN(18+b[0])} (${c.map(rc).join(", ")}). So that box’s ${d} is in this line, and ${d} can be removed from the box’s other cells.`}}}return null}
+function fX(S){for(let d=1;d<=9;d++)for(const line of[0,1]){const two=[];for(let k=0;k<9;k++){const c=U[(line?9:0)+k].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===2)two.push(c)}
+const key=i=>line?Math.floor(i/9):i%9;for(let a=0;a<two.length;a++)for(let b=a+1;b<two.length;b++){const A=two[a],B=two[b];if(key(A[0])===key(B[0])&&key(A[1])===key(B[1])){const el=[];for(const q of[key(A[0]),key(A[1])])for(const j of U[(line?0:9)+q])if(!A.includes(j)&&!B.includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);if(el.length){const w=line?"columns":"rows",x=line?"rows":"columns";return{t:"xwing",elim:el,cells:[...A,...B],tgt:el.map(q=>q[0]),f:[d],text:`In two ${w}, the digit ${d} has exactly two possible cells each (${[...A,...B].map(rc).join(", ")}), lined up in the same two ${x}. ${d} must take one diagonal of this rectangle, so ${d} can be removed from the rest of those two ${x}.`}}}}}return null}
+function fXY(S){for(let p=0;p<81;p++){if(S.V[p]||pc(S.C[p])!==2)continue;const w=[];for(let q=0;q<81;q++)if(P[p][q]&&!S.V[q]&&pc(S.C[q])===2&&pc(S.C[q]&S.C[p])===1)w.push(q);
+for(let a=0;a<w.length;a++)for(let b=a+1;b<w.length;b++){const q1=w[a],q2=w[b],x=S.C[q1]&~S.C[p];if(x!==(S.C[q2]&~S.C[p]))continue;if((S.C[q1]&S.C[p])===(S.C[q2]&S.C[p]))continue;const el=[];for(let j=0;j<81;j++)if(j!==p&&j!==q1&&j!==q2&&!S.V[j]&&P[q1][j]&&P[q2][j]&&S.C[j]&x)el.push([j,x]);
+if(el.length){const c=dg(x)[0],[A,B]=dg(S.C[p]);return{t:"xywing",elim:el,cells:[p,q1,q2],tgt:el.map(q=>q[0]),f:[c],text:`Pivot ${rc(p)} holds {${A},${B}}. Wing ${rc(q1)} holds {${dg(S.C[q1])}} and wing ${rc(q2)} holds {${dg(S.C[q2])}}. Whichever way the pivot goes, one wing must be ${c}, so ${c} can be removed from every cell that sees both wings.`}}}}return null}
+function fSw(S){for(let d=1;d<=9;d++)for(const line of[0,1]){const key=i=>line?Math.floor(i/9):i%9,ls=[];for(let k=0;k<9;k++){const c=U[(line?9:0)+k].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length>=2&&c.length<=3)ls.push(c)}
+for(let a=0;a<ls.length;a++)for(let b=a+1;b<ls.length;b++)for(let c=b+1;c<ls.length;c++){const cs=[...ls[a],...ls[b],...ls[c]],ks=[...new Set(cs.map(key))];if(ks.length!==3)continue;const el=[];for(const q of ks)for(const j of U[(line?0:9)+q])if(!cs.includes(j)&&!S.V[j]&&S.C[j]&bit(d))el.push([j,bit(d)]);
+if(el.length){const w=line?"columns":"rows",x=line?"rows":"columns";return{t:"swordfish",elim:el,cells:cs,tgt:el.map(q=>q[0]),f:[d],text:`In three ${w}, the digit ${d} has only two or three possible cells each (${cs.map(rc).join(", ")}), all inside the same three ${x}. So ${d} is used up inside those three ${x}, and can be removed from every other cell in them.`}}}}return null}
+function fXYZ(S){for(let p=0;p<81;p++){if(S.V[p]||pc(S.C[p])!==3)continue;const w=[];for(let q=0;q<81;q++)if(P[p][q]&&!S.V[q]&&pc(S.C[q])===2&&(S.C[q]&~S.C[p])===0)w.push(q);
+for(let a=0;a<w.length;a++)for(let b=a+1;b<w.length;b++){const q1=w[a],q2=w[b],z=S.C[q1]&S.C[q2];if(pc(z)!==1||(S.C[q1]|S.C[q2])!==S.C[p])continue;const el=[];for(let j=0;j<81;j++)if(j!==p&&j!==q1&&j!==q2&&!S.V[j]&&P[p][j]&&P[q1][j]&&P[q2][j]&&S.C[j]&z)el.push([j,z]);
+if(el.length){const c=dg(z)[0];return{t:"xyzwing",elim:el,cells:[p,q1,q2],tgt:el.map(q=>q[0]),f:[c],text:`Pivot ${rc(p)} holds {${dg(S.C[p])}}. Wing ${rc(q1)} holds {${dg(S.C[q1])}} and wing ${rc(q2)} holds {${dg(S.C[q2])}}. Whatever the pivot becomes, ${c} lands in the pivot or one wing, so ${c} can be removed from every cell that sees all three.`}}}}return null}
+function fSky(S){for(let d=1;d<=9;d++)for(const line of[0,1]){const key=i=>line?Math.floor(i/9):i%9,two=[];for(let k=0;k<9;k++){const c=U[(line?9:0)+k].filter(i=>!S.V[i]&&S.C[i]&bit(d));if(c.length===2)two.push(c)}
+for(let a=0;a<two.length;a++)for(let b=a+1;b<two.length;b++){const A=two[a],B=two[b];for(let x=0;x<2;x++)for(let y=0;y<2;y++){if(key(A[x])!==key(B[y])||key(A[1-x])===key(B[1-y]))continue;const r1=A[1-x],r2=B[1-y],el=[];for(let j=0;j<81;j++)if(j!==r1&&j!==r2&&!S.V[j]&&P[r1][j]&&P[r2][j]&&S.C[j]&bit(d))el.push([j,bit(d)]);
+if(el.length)return{t:"skyscraper",sk:{A,B,r1,r2,line},elim:el,cells:[...A,...B],tgt:el.map(q=>q[0]),f:[d],text:`In two ${line?"columns":"rows"}, ${d} has just two possible cells each (${[...A,...B].map(rc).join(", ")}). Two of them share a ${line?"row":"column"}, so at least one of the other two, ${rc(r1)} or ${rc(r2)}, must be ${d}. Remove ${d} from every cell that sees both.`}}}}return null}
+const KEYS=["fullhouse","lastdigit","scanning","naked1","hidden1","nakedpair","hiddenpair","pointing","claiming","xwing","swordfish","xywing","xyzwing","skyscraper"];
+const FIND=[fFull,fLast,fScan,fNaked,fHidden,fNP,fHP,fPoint,fClaim,fX,fSw,fXY,fXYZ,fSky],LV=[1,1,1,2,2,3,3,4,4,5,5,6,6,6];
+function nextStep(S,maxL,pf){if(pf){const k=KEYS.indexOf(pf);if(k>=0&&LV[k]<=maxL){const s=FIND[k](S);if(s)return s}}for(let k=0;k<FIND.length;k++)if(LV[k]<=maxL){const s=FIND[k](S);if(s)return s}return null}
+function logicSolve(V,maxL,pf){const S=mk(V.slice()),used={};let hard=0;for(;;){if(S.V.every(x=>x))return{ok:true,hard,used};const s=nextStep(S,maxL,pf);if(!s)return{ok:false,hard,used};used[s.t]=(used[s.t]||0)+1;hard=Math.max(hard,TECH[s.t].l);apply(S,s)}}
+function profile(V0){const T=mk(V0.slice()),could={};for(let g=0;g<200&&!T.V.every(x=>x);g++){let s=null;for(let k=0;k<FIND.length;k++){const r=FIND[k](T);if(r){could[KEYS[k]]=1;if(!s)s=r}}if(!s)break;apply(T,s)}return{could}}
+function fullGrid(){const g=new Array(81).fill(0),R=Array(9).fill(0),Cc=Array(9).fill(0),B=Array(9).fill(0);
+function go(i){if(i===81)return true;const r=Math.floor(i/9),c=i%9,b=Math.floor(r/3)*3+Math.floor(c/3);for(const d of shuffle([1,2,3,4,5,6,7,8,9])){const m=bit(d);if(R[r]&m||Cc[c]&m||B[b]&m)continue;g[i]=d;R[r]|=m;Cc[c]|=m;B[b]|=m;if(go(i+1))return true;g[i]=0;R[r]&=~m;Cc[c]&=~m;B[b]&=~m}return false}go(0);return g}
+function generate(L,ms,need){const t0=Date.now();let best=null;do{const sol=fullGrid(),V=sol.slice();for(const i of shuffle([...Array(81).keys()])){const d=V[i];V[i]=0;if(!logicSolve(V,L,need).ok)V[i]=d}
+const r=logicSolve(V,L,need),ok=need?(r.used[need]||0)>0:r.hard>=L,sc=need?(r.used[need]||0)*100+r.hard:r.hard;if(!best||sc>best.sc)best={V:V.slice(),sol,hard:r.hard,ok,sc};if(ok)break}while(Date.now()-t0<ms);return best}
+/* ---------- UI ---------- */
+let mode="learn",S,sol,giv=[],N=new Int16Array(81),sel=null,foc=0,notesOn=false,view=null,L=1,LL=1,hints=0,mist=0,info="",dismissed=new Set(),pop=null,avail=[],pick="easy",demo=null,exSel=null,rew=null,pref=null,want=null,prof=null,mine={},er="",t0=Date.now(),fin=null,prog={};try{prog=JSON.parse(localStorage.getItem("sdk2")||"{}")}catch(e){}
+const mini=f=>'<div class="m">'+[1,2,3,4,5,6,7,8,9].map(f).join("")+"</div>",setCard=h=>{$("hc").innerHTML=h};
+const fmt=n=>Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
+function credit(t){if(!t||mine[t])return false;mine[t]=1;prog[t]=(prog[t]||0)+1;try{localStorage.setItem("sdk2",JSON.stringify(prog))}catch(e){}return true}
+function singles(T){const o=new Map();for(let i=0;i<81;i++)if(!T.V[i]&&pc(T.C[i])===1)o.set(i,dg(T.C[i])[0]);for(let u=0;u<27;u++)for(let d=1;d<=9;d++){const c=U[u].filter(i=>!T.V[i]&&T.C[i]&bit(d));if(c.length===1)o.set(c[0],d)}return o}
+function hintChain(S0,maxL,pf){const T=mk(S0.V.slice()),steps=[];for(let g=0;g<200;g++){const s=nextStep(T,maxL,pf);if(!s)return null;steps.push(s);apply(T,s);if(s.place){const non=steps.filter(x=>!x.place),key=(pf&&steps.find(x=>x.t===pf))||(non.length?non.reduce((x,y)=>TECH[y.t].l>=TECH[x.t].l?y:x):s);return{key,target:s.place[0],digit:s.place[1],lv:TECH[key.t].l}}}return null}
+function chainHard(S0,maxL){const pre=singles(S0);for(let k=FIND.length-1;k>=5;k--){if(LV[k]>maxL)continue;const s=FIND[k](S0);if(!s||!s.elim)continue;const T=mk(S0.V.slice());apply(T,s);for(const[i,d]of singles(T))if(!pre.has(i))return{key:s,target:i,digit:d,lv:LV[k]}}return null}
+function chainFor(S0,maxL,pf){if(pick==="hard"&&!pf){const c=chainHard(S0,maxL);if(c)return c}return hintChain(S0,maxL,pf)}
+function findLesson(l,pf){for(let n=0;n<90;n++){const c=chainFor(S,l,pf);if(!c)return null;if(pf?c.key.t===pf:c.lv>=l)return c;place(S,c.target,c.digit);giv[c.target]=true}return null}
+function updStatus(){const done=S&&S.V.every(x=>x);if(done&&fin===null){fin=Math.floor((Date.now()-t0)/1000);if(mode==="play")try{const b=JSON.parse(localStorage.getItem("sdb")||"{}");if(!b[L]||fin<b[L]){b[L]=fin;localStorage.setItem("sdb",JSON.stringify(b))}}catch(e){}}
+const el=fin!==null?fin:Math.floor((Date.now()-t0)/1000);let bt="";try{const b=JSON.parse(localStorage.getItem("sdb")||"{}");if(b[L])bt=` · Best L${L}: ${fmt(b[L])}`}catch(e){}
+$("st").textContent=done?`Solved in ${fmt(el)}! Hints: ${hints}. Mistakes: ${mist}.${bt}`:`${info} Time ${fmt(el)} · Hints: ${hints} · Mistakes: ${mist}${bt}`}
+function renderCk(){const sug=KEYS.find(k=>(prog[k]||0)<3);$("ck").innerHTML=KEYS.map(k=>{const t=TECH[k],n=prog[k]||0,st=mine[k]?"✔ you used it":prof&&prof.could[k]?"in this puzzle":"not needed here";return`<button data-ck="${k}" class="${want===k?"on":""}">${t.n.split(" (")[0]} · L${t.l}<br><small>${st} · used ${n}×${n>=3?" ★":""}${k===sug?" · next":""}</small></button>`}).join("")}
+function why(i,d){if(!(S.C[i]&bit(d))){const j=[...Array(81).keys()].find(j=>P[i][j]&&S.V[j]===d);return`${d} can’t go in ${rc(i)}: ${rc(j)} already has a ${d} in the same row, column or box.`}const s=avail.find(s=>s&&s.place&&s.place[0]===i);return`${d} isn’t the answer for ${rc(i)}. It fits the basic rules, but ${s?"this cell is solved by "+TECH[s.t].n+". Look for it.":"its answer comes from a deeper pattern. Try Hint."}`}
+function stagesFor(c){const s=c.key,t=TECH[s.t],st=[],tg=s.elim?s.elim.map(q=>q[0]):[];
+st.push({hl:s.cells,dig:[],txt:`<b>Starting point.</b> The small numbers in a cell are pencil marks: the digits that could still go there. This technique is called <b>${t.n}</b>. ${t.d} Look at the highlighted cells. They form the pattern.`});
+st.push({hl:s.cells,dig:s.f,txt:`Now look only at the digit${s.f.length>1?"s":""} ${s.f.join(" and ")} inside those cells (shown larger and green).`});
+if(s.t==="skyscraper"){const{A,B,r1,r2,line}=s.sk,d=s.f[0],ln=line?"columns":"rows",bl=line?"row":"column",base=[A.find(i=>i!==r1),B.find(i=>i!==r2)];
+st[1]={hl:[...A,...B],dig:s.f,txt:`In these two ${ln}, the digit ${d} can go in only two cells each. Each ${ln.slice(0,-1)} still needs one ${d}, so exactly one cell of each pair is ${d}.`};
+st.push({hl:base,dig:s.f,txt:`Two of the four cells sit in the same ${bl}. These are the <b>base</b>. A ${bl} holds only one ${d}, so at most one base cell is ${d}.`});
+st.push({hl:[r1,r2],dig:s.f,txt:`The other two cells are the <b>roof</b>. If neither roof cell were ${d}, both ${ln} would put their ${d} in the base, giving two ${d}s in one ${bl}. That is impossible, so at least one roof cell is ${d}.`});
+st.push({hl:tg,dig:s.f,txt:`Find cells that see BOTH roof cells (same row, column or box as each). Whichever roof cell holds ${d}, these cells see it, so they can’t be ${d}.`})}
+else st.push({hl:s.cells,dig:s.f,txt:s.text});
+if(s.elim){st.push({hl:tg,dig:s.f,strike:s.elim,txt:`<b>What changes.</b> The struck-through red candidate can’t be correct in these cells, so it is removed. In your own notes you would erase it.`});
+st.push({hl:tg,dig:s.f,after:true,txt:`Here are the pencil marks after the removal.`})}
+st.push({hl:[c.target],dig:[],after:true,txt:`Now look at <b>${rc(c.target)}</b>. ${s.place?"":"After that removal (and any easier clean-up), "}only one digit still fits there.`});
+st.push({hl:[c.target],dig:[],place:true,txt:`<b>Finish.</b> Place <b>${c.digit}</b> in ${rc(c.target)}. That is the answer this technique gives.`});return st}
+function startDemo(c,snap,mine){exSel=null;clearTimeout(demo&&demo.timer);demo={st:stagesFor(c),i:-1,c,snap:snap||{V:S.V.slice(),C:S.C.slice()},auto:false,mine};nextStage()}
+function nextStage(){if(!demo)return;clearTimeout(demo.timer);if(demo.i<demo.st.length-1){demo.i++;const s=demo.st[demo.i];demo.show=!(s.place||s.strike);render();demoCard();if(!demo.show)setTimeout(()=>{if(demo){demo.show=true;render()}},1300);if(demo.auto)demo.timer=setTimeout(nextStage,s.place||s.strike?3600:3200)}else{demo.auto=false;demoCard()}}
+function demoCard(){const d=demo,last=d.i>=d.st.length-1;d.all=false;setCard(`<div class="card"><h2>${d.mine?"What you did":"Step by step"} · ${d.i+1} of ${d.st.length}</h2><p>${d.st[d.i].txt}</p><div class="row">${last?'<button class="p" id="dr">Watch again</button>':'<button class="p" id="dn">Next</button><button id="dp">Play all</button>'}<button id="da">See all steps</button><button id="dc">Close</button></div></div>`)}
+function seeAll(){clearTimeout(demo.timer);demo.auto=false;demo.i=demo.st.length-1;demo.show=true;demo.all=true;render();setCard(`<div class="card"><h2>${demo.mine?"What you did":"Step by step"}: all steps</h2><ol>${demo.st.map(x=>`<li>${x.txt}</li>`).join("")}</ol><p class="k2">The board shows the finishing point. Tap a highlighted cell to see how it connects.</p><div class="row"><button class="p" id="dr">Watch again</button><button id="dc">Close</button></div></div>`)}
+const RSN={pointing:"In that box every possible spot for the digit is on one line, so the box’s digit must be on that line. Any other cell on the line can’t also hold it.",claiming:"In that line every possible spot for the digit is inside one box, so the line’s digit is in that box. The box’s other cells can’t hold it.",nakedpair:"The pair must use up its two digits, so no other cell in the unit can hold them.",hiddenpair:"These two digits can only go in the pair cells, so the pair cells can’t hold anything else.",xwing:"The digit must fill one diagonal of the rectangle, so every other cell in those lines can’t hold it.",swordfish:"The digit is used up inside the three crossing lines, so every other cell in them can’t hold it.",skyscraper:"At least one roof cell is the digit, and this cell sees both roof cells.",xywing:"One wing must hold the shared digit, and this cell sees both wings.",xyzwing:"The shared digit is in the pivot or one wing, and this cell sees all three."};
+const shared=(i,j)=>U.map((u,k)=>u.includes(i)&&u.includes(j)?UN(k):null).filter(Boolean).join(" and ");
+function explain(i){const src=demo?demo.c:(view&&!view.hidden?view.c:null);if(!src||!src.key)return false;const s=src.key,el=(s.elim||[]).find(q=>q[0]===i),tg=src.target===i,inv=s.cells.includes(i);if(!el&&!tg&&!inv)return false;let t,set=new Set();
+if(tg)t=`<b>This is the answer cell (green).</b> ${s.place?"Only one digit fits here.":"Once the red candidates are removed, only one digit is left here."} Use Hint or Watch it step by step to see why.`;
+else if(el){const lk=s.cells.filter(j=>P[i][j]);lk.forEach(j=>U.forEach(u=>{if(u.includes(i)&&u.includes(j))u.forEach(c=>set.add(c))}));t=`<b>${rc(i)} (red) loses the ${dg(el[1]).join(", ")}.</b> It sees ${lk.map(j=>rc(j)+" through "+shared(i,j)).join("; ")}. Those are pattern cells, and the blue cells show the lines that connect them. ${RSN[s.t]||s.text}`}
+else t=`<b>${rc(i)} is part of the pattern (yellow).</b> ${RSN[s.t]?"It is one of the cells that holds the key digit. "+RSN[s.t]:TECH[s.t].d}`;
+exSel={set,i};setCard(`<div class="card"><h2>${rc(i)}</h2><p>${t}</p><button id="dback">Back</button></div>`);render();return true}
+function render(){const dm=demo&&demo.st[demo.i],VV=demo?demo.snap.V:S.V,CC=demo?demo.snap.C:S.C,cnt=Array(10).fill(0);S.V.forEach(v=>cnt[v]++);const st=view&&view.step,el=(st&&st.elim)||[],show=!demo&&view&&!view.hidden;
+let CX=CC,R=null;if(dm){const k=demo.c.key;CX=Int16Array.from(CC);if(dm.after||dm.place)for(const[i,m]of k.elim||[])CX[i]&=~m;R=new Set([...k.cells,...(k.elim||[]).map(q=>q[0]),demo.c.target])}
+let h="";for(let i=0;i<81;i++){const v=VV[i],r=Math.floor(i/9),c=i%9;let cls="c";if(c%3===2&&c<8)cls+=" br";if(r%3===2&&r<8)cls+=" bb";if(giv[i])cls+=" g";if(!demo&&foc&&v===foc)cls+=" fo";if(!demo&&i===sel)cls+=" sel";if(exSel&&exSel.set.has(i))cls+=" ln";let inner="";
+if(dm){const hl=dm.hl.includes(i),sk=dm.strike&&dm.strike.find(q=>q[0]===i);if(hl&&!demo.all)cls+=" inv bounce";if(demo.c.target===i&&(dm.place||dm.after||demo.all))cls+=" tgt";
+if(v)inner=`<span class="d">${v}</span>`;else if((dm.place||demo.all)&&demo.c.target===i&&demo.show)inner=`<span class="d pre">${demo.c.digit}</span>`;
+else if(R.has(i)){const em=sk&&!demo.all?sk[1]:0;inner=mini(d=>{const on=CX[i]&bit(d),x=on&&(em&bit(d))&&demo.show,k=on&&dm.dig.includes(d);return`<i class="${x?"x":k?"k":""}">${on?d:""}</i>`})}}
+else{const inv=show&&st.cells.includes(i),e=show&&el.find(q=>q[0]===i);if(inv)cls+=" inv";if(e)cls+=" el";if(view&&view.target===i)cls+=" tgt";
+if(v)inner=`<span class="d">${v}</span>`;
+else if(inv||e){const em=e?e[1]:0,src=view.notes?N:S.C;inner=mini(d=>{const on=src[i]&bit(d),x=on&&(em&bit(d)),k=on&&st.f.includes(d);return`<i class="${x?"x":k?"k":""}">${x||k?d:""}</i>`})}
+else if(N[i])inner=mini(d=>`<i>${N[i]&bit(d)?d:""}</i>`)}
+h+=`<div class="${cls}" data-i="${i}">${inner}</div>`}
+$("g").innerHTML=h;$("rw").innerHTML=rew&&!demo?`<div class="rwb">⭐ ${TECH[rew.t].n} used!<br><button id="rwb">Show me what I did</button><button id="rwx">×</button></div>`:"";
+$("pad").innerHTML=[1,2,3,4,5,6,7,8,9].map(d=>`<button data-d="${d}" class="${cnt[d]>=9?"done":""}">${d}</button>`).join("");
+avail=FIND.map(f=>f(S));$("sk").innerHTML=avail.map((s,k)=>s?`<button data-k="${k}">${TECH[KEYS[k]].n.split(" (")[0]} · L${TECH[KEYS[k]].l}</button>`:"").join("")||'<span class="k2">None right now.</span>';
+updStatus();$("er").textContent=er;renderCk();$("pick").textContent="Green cell: "+(pick==="easy"?"easiest answer (fast run)":"hardest skill (to learn)");$("nt").textContent="✏️ Notes: "+(notesOn?"on":"off");$("nt").classList.toggle("on",notesOn)}
+function relCard(v){const t=TECH[v.step.t];setCard(`<div class="card"><h2>${v.lesson?"Lesson":"Hint"}</h2><b>${t.n}</b><span class="tag">Level ${t.l}</span><p>${v.step.text}</p>${v.step.place?"":`<p>After this (and any easier clean-up), <b>${rc(v.c.target)}</b> has just one possible digit. Enter it in the green square.</p>`}<p class="k2">${t.d}</p><div class="row"><button class="p" id="watch">Watch it step by step</button>${v.lesson?'<button id="show">Fill it in for me</button>':""}</div></div>`)}
+function nextLesson(msg){const c=chainFor(S,LL,pref);if(!c){view=null;setCard('<div class="card"><b>Nothing left to practise here.</b> Finish the puzzle or tap New puzzle.</div>');return}view={step:c.key,target:c.target,c,lesson:true};relCard(view)}
+function fillAround(c){let cur=c;const sig=x=>x.key.t+x.key.cells.join(","),want0=sig(c);const order=shuffle([...Array(81).keys()].filter(i=>!S.V[i]));for(const i of order){if(S.V[i]||i===cur.target)continue;if(S.V.filter(x=>!x).length<=6)break;const T={V:S.V.slice(),C:S.C.slice()};place(T,i,sol[i]);const c2=chainFor(T,LL,pref);if(c2&&sig(c2)===want0){S=T;giv[i]=true;cur=c2}}return cur}
+function put(i,d,quiet){const snap={V:S.V.slice(),C:S.C.slice()};place(S,i,d);N[i]=0;for(let j=0;j<81;j++)if(P[i][j])N[j]&=~bit(d);const wasT=view&&view.target===i;if(wasT){if(view.c&&view.c.key&&credit(view.c.key.t))rew={t:view.c.key.t,c:view.c,snap};view=null;setCard("");if(mode==="learn"&&!quiet)setCard('<div class="card"><b>Correct!</b> That’s the skill. Finish the puzzle, or tap New puzzle for another.</div>')}}
+function enter(d){if(S.V.every(x=>x)||demo)return;if(sel!==null&&!S.V[sel]){if(notesOn){N[sel]^=bit(d);detect();return render()}
+if(sol[sel]===d){const hit=avail.find(s=>s&&s.place&&s.place[0]===sel&&s.place[1]===d);if(hit&&credit(hit.t))rew={t:hit.t,c:{key:hit,target:sel,digit:d},snap:{V:S.V.slice(),C:S.C.slice()}};er="";put(sel,d)}else{mist++;er=why(sel,d)}}else foc=foc===d?0:d;render()}
+function detect(){const T=mk(S.V.slice());for(let i=0;i<81;i++)if(!S.V[i]&&N[i])T.C[i]=N[i];
+for(let k=5;k<FIND.length;k++){const s=FIND[k](T);if(!s||!s.elim||!s.cells.every(i=>!!N[i]))continue;const el=s.elim.filter(([i,m])=>N[i]&m).map(([i,m])=>[i,N[i]&m]);if(!el.length)continue;const key=s.t+JSON.stringify(el);if(dismissed.has(key))continue;
+pop={s:{...s,elim:el,tgt:el.map(q=>q[0])},key};view={step:pop.s,target:null,notes:true};const t=TECH[s.t];
+setCard(`<div class="card"><h2>You found a pattern</h2><b>${t.n}</b><span class="tag">Level ${t.l}</span><p>${s.text}</p><p class="k2">${t.d} The struck-through notes can go, even though you don’t know the other digits yet.</p><button class="p" id="pa">Remove them from my notes</button> <button id="pn">Not now</button></div>`);return}}
+function newPuzzle(){let w=want;want=null;if(!w&&mode==="learn"&&$("auto").checked)w=KEYS.slice().sort((a,b)=>(prog[a]||0)-(prog[b]||0)||KEYS.indexOf(a)-KEYS.indexOf(b)).find(k=>(prog[k]||0)<3)||null;demo=null;rew=null;L=w?TECH[w].l:+$("lvl").value;$("lvl").value=L;$("st").textContent="Making a puzzle…";$("g").style.opacity=.5;
+setTimeout(()=>{const p=generate(L,2500,w);pref=w&&p.ok?w:null;LL=pref?L:Math.max(1,Math.min(L,p.hard));sol=p.sol;giv=p.V.map(x=>!!x);S=mk(p.V.slice());N=new Int16Array(81);sel=null;foc=0;view=null;hints=0;mist=0;er="";mine={};dismissed=new Set();setCard("");prof=profile(p.V);t0=Date.now();fin=null;
+info=w?(p.ok?`Practising ${TECH[w].n}.`:`Couldn’t force ${TECH[w].n} this time; closest I found.`):(p.hard>=L?`Level ${L} puzzle.`:`Closest I found needs Level ${p.hard}; tap New puzzle for a harder one.`);
+if(mode==="learn"){let c=findLesson(LL,pref);if(c)c=fillAround(c);if(c){view={step:c.key,target:c.target,c,lesson:true};relCard(view)}else setCard('<div class="card"><b>This puzzle never needs this technique.</b> Tap New puzzle to try again.</div>')}
+$("g").style.opacity=1;render()},30)}
+function setMode(t){const g=t==="guide",rs=t==="resources";$("rs").style.display=rs?"":"none";document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));$("bd").style.display=g||rs?"none":"";$("gd").style.display=g?"":"none";if(rs)return;
+if(g){$("gx").innerHTML=KEYS.map(k=>`<p><b>${TECH[k].n}</b> <span class="tag">Level ${TECH[k].l}</span><br><span class="k2">${TECH[k].d}</span><br><button data-ex="${k}">Show me an example</button></p>`).join("");return}
+const ch=mode!==t;mode=t;const sug=KEYS.find(k=>(prog[k]||0)<3);$("sub").textContent=(t==="learn"?"I’ll show a technique on a real cell, then you apply it to the green square.":"Solve freely. Hint shows one answer at a time. Turn on Notes to pencil in candidates.")+(sug?` Suggested next skill: ${TECH[sug].n}.`:" You’ve practised every skill here three times.");if(ch||!S)newPuzzle()}
+document.addEventListener("click",e=>{const b=e.target.closest("button,.c");if(!b)return;
+if(b.dataset.t)return setMode(b.dataset.t);
+if(b.dataset.ck){const k=b.dataset.ck;want=want===k?null:k;er=want?`Next puzzle will practise ${TECH[want].n} (level ${TECH[want].l}). Tap New puzzle.`:"";return render()}
+if(b.dataset.ex){want=b.dataset.ex;mode="learn";setMode("learn");return newPuzzle()}
+if(b.id==="pick"){pick=pick==="easy"?"hard":"easy";view=null;setCard("");if(mode==="learn"&&S&&!S.V.every(x=>x))nextLesson("");return render()}
+if(b.id==="pa"){credit(pop.s.t);for(const[i,m]of pop.s.elim)N[i]&=~m;const one=pop.s.elim.map(q=>q[0]).find(i=>pc(N[i])===1);view=null;setCard(one!==undefined?`<div class="card"><b>${rc(one)} now has one note: ${dg(N[one])[0]}.</b> Turn Notes off and enter it.</div>`:"");return render()}
+if(b.id==="pn"){dismissed.add(pop.key);view=null;setCard("");return render()}
+if(b.id==="show"){const c=view.c;put(c.target,c.digit,true);setCard('<div class="card"><b>Filled in.</b> Finish the puzzle, or tap New puzzle to try another example.</div>');return render()}
+if(b.id==="watch"){return startDemo(view.c)}if(b.id==="rwb"){return startDemo(rew.c,rew.snap,true)}if(b.id==="rwx"){rew=null;return render()}
+if(b.id==="da")return seeAll();if(b.id==="dback"){exSel=null;if(demo&&demo.all)seeAll();else if(demo)demoCard();else if(view)relCard(view);return render()}if(b.id==="dn")return nextStage();if(b.id==="dp"){demo.auto=true;return nextStage()}if(b.id==="dr"){demo.all=false;demo.i=-1;demo.auto=false;return nextStage()}
+if(b.id==="dc"){clearTimeout(demo&&demo.timer);demo=null;setCard("");return render()}
+if(b.dataset.k!==undefined){const s=avail[+b.dataset.k];if(!s)return;view={step:s,target:s.place?s.place[0]:null,c:{target:s.place?s.place[0]:null}};setCard(`<div class="card"><b>${TECH[s.t].n}</b><p class="k2">${TECH[s.t].d}</p><p class="k2">The highlighted cells are where it applies.</p></div>`);return render()}
+if(b.dataset.d){return enter(+b.dataset.d)}
+if(b.classList.contains("c")){sel=+b.dataset.i;if(S.V[sel]&&!demo)foc=S.V[sel];if(!explain(sel))render()}});
+$("new").onclick=newPuzzle;
+$("nt").onclick=()=>{notesOn=!notesOn;render()};$("fill").onclick=()=>{N=Int16Array.from(S.C);render()};
+$("hint").onclick=()=>{if(S.V.every(x=>x))return;hints++;if(view&&view.hidden&&view.c&&view.c.key){view.hidden=false;relCard(view);return render()}
+const c=chainFor(S,mode==="learn"?LL:6,mode==="learn"?pref:null);if(!c){view=null;setCard('<div class="card"><b>No technique I know applies.</b><p class="k2">This puzzle may need a chain or another method beyond Level 6.</p></div>');return render()}
+view={step:c.key,target:c.target,c};relCard(view);render()};
+document.addEventListener("keydown",e=>{if(!S)return;if(/^[1-9]$/.test(e.key))enter(+e.key);else if(e.key==="n"){notesOn=!notesOn;render()}else if((e.key==="Backspace"||e.key==="Delete")&&sel!==null&&!S.V[sel]){N[sel]=0;render()}});
+setInterval(()=>{if(S&&fin===null&&!S.V.every(x=>x))updStatus()},1000);
+setMode("learn");
+</script>
+</body>
+</html>
