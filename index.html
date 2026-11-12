@@ -31,6 +31,7 @@ select{flex:1;min-width:0}
 .k2{color:var(--mute);font-size:14px}h2{font:700 12px system-ui;text-transform:uppercase;letter-spacing:.1em;color:var(--mute);margin:0 0 6px}
 details{margin:10px 0}summary{cursor:pointer;font-weight:600}.gd p{margin:6px 0;font-size:14px}
 .tabs{display:flex;gap:6px;margin:4px 0 10px}.tabs button{flex:1}.tabs .on,button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+.ln{background:#cfe6ff}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ln{background:#24405c}}
 .bounce{animation:bn .6s 2;position:relative;z-index:3}@keyframes bn{50%{transform:scale(1.22)}}.pre{opacity:.8}
 .rwb{position:absolute;left:50%;top:10px;transform:translateX(-50%);background:var(--acc);color:var(--accink);padding:8px 14px;border-radius:26px;box-shadow:0 4px 16px #0006;text-align:center;font-weight:700;animation:pp .5s;z-index:9}.rwb button{margin:4px 2px 0;padding:5px 10px;font-size:13px}@keyframes pp{from{transform:translateX(-50%) scale(.4);opacity:0}}
 .pad button.done{opacity:.28;text-decoration:line-through}.el{background:var(--elbg)}:root{--elbg:#f6d6cf}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--elbg:#5a2d26}}:root[data-theme="dark"]{--elbg:#5a2d26}
@@ -40,7 +41,7 @@ details{margin:10px 0}summary{cursor:pointer;font-weight:600}.gd p{margin:6px 0;
 <body>
 <main>
 <h1>Sudoku Tutor</h1>
-<div class="tabs" id="tabs"><button data-t="learn" class="on">Learn</button><button data-t="play">Play</button><button data-t="guide">Guide</button></div>
+<div class="tabs" id="tabs"><button data-t="learn" class="on">Learn</button><button data-t="play">Play</button><button data-t="guide">Guide</button><button data-t="resources">Resources</button></div>
 <div id="bd">
 <p class="sub" id="sub"></p>
 <div class="row"><select id="lvl" aria-label="Level">
@@ -56,6 +57,27 @@ details{margin:10px 0}summary{cursor:pointer;font-weight:600}.gd p{margin:6px 0;
 <div class="card"><h2>Techniques that apply right now</h2><div class="chips" id="sk"></div><p class="k2">Tap one to highlight where it works.</p></div>
 <div class="card"><h2>Skills checklist</h2><div class="chips" id="ck"></div><p class="k2">Shows what this puzzle can use and what you’ve used. Tap a skill to make the next puzzle practise it. The count is saved on this device.</p></div>
 </div>
+<div id="rs" style="display:none" class="card gd2"><h2>Resources</h2>
+<h2>Learn from real people (video)</h2>
+<p>I could verify only one channel by name: <a href="https://www.youtube.com/@CrackingTheCryptic" target="_blank" rel="noopener"><b>Cracking the Cryptic</b></a> (YouTube), hosted by named people who solve puzzles live and explain every step. The links below are searches, not endorsements. I haven’t checked individual accounts, so use the tips underneath to confirm a creator is a real person.</p>
+<ul><li><a href="https://www.youtube.com/results?search_query=sudoku+x-wing+explained" target="_blank" rel="noopener">YouTube: X-Wing explained</a></li>
+<li><a href="https://www.youtube.com/results?search_query=sudoku+xy-wing+tutorial" target="_blank" rel="noopener">YouTube: XY-Wing tutorials</a></li>
+<li><a href="https://www.youtube.com/results?search_query=smart+hobbies+sudoku+advanced+tutorial" target="_blank" rel="noopener">YouTube: Smart Hobbies advanced sudoku series (named in my search results)</a></li>
+<li><a href="https://www.youtube.com/results?search_query=sudoku+snyder+notation+shorts" target="_blank" rel="noopener">YouTube Shorts: Snyder notation</a></li>
+<li><a href="https://www.tiktok.com/tag/sudoku" target="_blank" rel="noopener">TikTok: #sudoku</a></li>
+<li><a href="https://www.instagram.com/explore/tags/sudoku/" target="_blank" rel="noopener">Instagram: #sudoku</a></li></ul>
+<p><b>How to tell a human teacher:</b> a named person with a voice or face, an About page with a history, puzzles solved live with mistakes and corrections, and no “AI-generated” label.</p>
+<h2>Reading and reference</h2>
+<ul><li><a href="https://www.sudopedia.org" target="_blank" rel="noopener">Sudopedia</a>: technique definitions and names.</li>
+<li><a href="https://www.sudokuwiki.org/Strategy_Families" target="_blank" rel="noopener">SudokuWiki: strategy families</a>: worked examples and a solver.</li>
+<li><a href="http://hodoku.sourceforge.net" target="_blank" rel="noopener">HoDoKu</a>: solver and trainer by Bernhard Hobiger.</li>
+<li><a href="https://blog.krazydad.com/?p=39" target="_blank" rel="noopener">Krazydad: an index of sudoku strategies</a></li>
+<li>Crook, J. F. (2009). “A pencil-and-paper algorithm for solving Sudoku puzzles.” <i>Notices of the AMS</i>, 56(4).</li></ul>
+<h2>Citations for what built this</h2>
+<ul><li>Technique names and definitions follow Sudopedia and SudokuWiki. Snyder notation is credited to Thomas Snyder.</li>
+<li>Puzzles are generated in your browser by a logic solver written for this page. There are no external libraries.</li>
+<li>Euclid page: <a href="https://mathcs.clarku.edu/~djoyce/java/elements/elements.html" target="_blank" rel="noopener">David Joyce’s edition of Euclid’s Elements</a>.</li>
+<li>Written and tested with Claude (Anthropic).</li></ul></div>
 <div id="gd" style="display:none" class="card gd2">
 <h2>Guide</h2>
 <p><b>Level 1.</b> <i>Full House</i>: a unit with one empty cell. <i>Last Digit</i>: a digit placed 8 times has a forced 9th spot. <i>Scanning (Cross-Hatching)</i>: the digit’s rows and columns block all but one cell of a box.</p>
@@ -135,7 +157,7 @@ function go(i){if(i===81)return true;const r=Math.floor(i/9),c=i%9,b=Math.floor(
 function generate(L,ms,need){const t0=Date.now();let best=null;do{const sol=fullGrid(),V=sol.slice();for(const i of shuffle([...Array(81).keys()])){const d=V[i];V[i]=0;if(!logicSolve(V,L,need).ok)V[i]=d}
 const r=logicSolve(V,L,need),ok=need?(r.used[need]||0)>0:r.hard>=L,sc=need?(r.used[need]||0)*100+r.hard:r.hard;if(!best||sc>best.sc)best={V:V.slice(),sol,hard:r.hard,ok,sc};if(ok)break}while(Date.now()-t0<ms);return best}
 /* ---------- UI ---------- */
-let mode="learn",S,sol,giv=[],N=new Int16Array(81),sel=null,foc=0,notesOn=false,view=null,L=1,LL=1,hints=0,mist=0,info="",dismissed=new Set(),pop=null,avail=[],pick="easy",demo=null,rew=null,pref=null,want=null,prof=null,mine={},er="",t0=Date.now(),fin=null,prog={};try{prog=JSON.parse(localStorage.getItem("sdk2")||"{}")}catch(e){}
+let mode="learn",S,sol,giv=[],N=new Int16Array(81),sel=null,foc=0,notesOn=false,view=null,L=1,LL=1,hints=0,mist=0,info="",dismissed=new Set(),pop=null,avail=[],pick="easy",demo=null,exSel=null,rew=null,pref=null,want=null,prof=null,mine={},er="",t0=Date.now(),fin=null,prog={};try{prog=JSON.parse(localStorage.getItem("sdk2")||"{}")}catch(e){}
 const mini=f=>'<div class="m">'+[1,2,3,4,5,6,7,8,9].map(f).join("")+"</div>",setCard=h=>{$("hc").innerHTML=h};
 const fmt=n=>Math.floor(n/60)+":"+String(n%60).padStart(2,"0");
 function credit(t){if(!t||mine[t])return false;mine[t]=1;prog[t]=(prog[t]||0)+1;try{localStorage.setItem("sdk2",JSON.stringify(prog))}catch(e){}return true}
@@ -150,25 +172,35 @@ $("st").textContent=done?`Solved in ${fmt(el)}! Hints: ${hints}. Mistakes: ${mis
 function renderCk(){const sug=KEYS.find(k=>(prog[k]||0)<3);$("ck").innerHTML=KEYS.map(k=>{const t=TECH[k],n=prog[k]||0,st=mine[k]?"✔ you used it":prof&&prof.could[k]?"in this puzzle":"not needed here";return`<button data-ck="${k}" class="${want===k?"on":""}">${t.n.split(" (")[0]} · L${t.l}<br><small>${st} · used ${n}×${n>=3?" ★":""}${k===sug?" · next":""}</small></button>`}).join("")}
 function why(i,d){if(!(S.C[i]&bit(d))){const j=[...Array(81).keys()].find(j=>P[i][j]&&S.V[j]===d);return`${d} can’t go in ${rc(i)}: ${rc(j)} already has a ${d} in the same row, column or box.`}const s=avail.find(s=>s&&s.place&&s.place[0]===i);return`${d} isn’t the answer for ${rc(i)}. It fits the basic rules, but ${s?"this cell is solved by "+TECH[s.t].n+". Look for it.":"its answer comes from a deeper pattern. Try Hint."}`}
 function stagesFor(c){const s=c.key,t=TECH[s.t],st=[],tg=s.elim?s.elim.map(q=>q[0]):[];
-st.push({hl:s.cells,dig:[],txt:`The small numbers in a cell are pencil marks: the digits that could still go there. This technique is called <b>${t.n}</b>. ${t.d} First, look at the highlighted cells. They form the pattern.`});
-st.push({hl:s.cells,dig:s.f,txt:`Now look only at the digit${s.f.length>1?"s":""} ${s.f.join(" and ")} inside those cells (shown larger).`});
+st.push({hl:s.cells,dig:[],txt:`<b>Starting point.</b> The small numbers in a cell are pencil marks: the digits that could still go there. This technique is called <b>${t.n}</b>. ${t.d} Look at the highlighted cells. They form the pattern.`});
+st.push({hl:s.cells,dig:s.f,txt:`Now look only at the digit${s.f.length>1?"s":""} ${s.f.join(" and ")} inside those cells (shown larger and green).`});
 if(s.t==="skyscraper"){const{A,B,r1,r2,line}=s.sk,d=s.f[0],ln=line?"columns":"rows",bl=line?"row":"column",base=[A.find(i=>i!==r1),B.find(i=>i!==r2)];
 st[1]={hl:[...A,...B],dig:s.f,txt:`In these two ${ln}, the digit ${d} can go in only two cells each. Each ${ln.slice(0,-1)} still needs one ${d}, so exactly one cell of each pair is ${d}.`};
 st.push({hl:base,dig:s.f,txt:`Two of the four cells sit in the same ${bl}. These are the <b>base</b>. A ${bl} holds only one ${d}, so at most one base cell is ${d}.`});
 st.push({hl:[r1,r2],dig:s.f,txt:`The other two cells are the <b>roof</b>. If neither roof cell were ${d}, both ${ln} would put their ${d} in the base, giving two ${d}s in one ${bl}. That is impossible, so at least one roof cell is ${d}.`});
 st.push({hl:tg,dig:s.f,txt:`Find cells that see BOTH roof cells (same row, column or box as each). Whichever roof cell holds ${d}, these cells see it, so they can’t be ${d}.`})}
 else st.push({hl:s.cells,dig:s.f,txt:s.text});
-if(s.elim){st.push({hl:tg,dig:s.f,strike:s.elim,txt:`Remove the struck-through candidate from these cells. In your own notes you would erase it.`})}
-st.push({hl:[c.target],dig:[],txt:`Now look at <b>${rc(c.target)}</b>. ${s.place?"":"After that removal (and any easier clean-up), "}only one digit still fits there.`});
-st.push({hl:[c.target],dig:[],place:true,txt:`Place <b>${c.digit}</b> in ${rc(c.target)}. That is the answer this technique gives.`});return st}
-function startDemo(c,snap,mine){clearTimeout(demo&&demo.timer);demo={st:stagesFor(c),i:-1,c,snap:snap||{V:S.V.slice(),C:S.C.slice()},auto:false,mine};nextStage()}
+if(s.elim){st.push({hl:tg,dig:s.f,strike:s.elim,txt:`<b>What changes.</b> The struck-through red candidate can’t be correct in these cells, so it is removed. In your own notes you would erase it.`});
+st.push({hl:tg,dig:s.f,after:true,txt:`Here are the pencil marks after the removal.`})}
+st.push({hl:[c.target],dig:[],after:true,txt:`Now look at <b>${rc(c.target)}</b>. ${s.place?"":"After that removal (and any easier clean-up), "}only one digit still fits there.`});
+st.push({hl:[c.target],dig:[],place:true,txt:`<b>Finish.</b> Place <b>${c.digit}</b> in ${rc(c.target)}. That is the answer this technique gives.`});return st}
+function startDemo(c,snap,mine){exSel=null;clearTimeout(demo&&demo.timer);demo={st:stagesFor(c),i:-1,c,snap:snap||{V:S.V.slice(),C:S.C.slice()},auto:false,mine};nextStage()}
 function nextStage(){if(!demo)return;clearTimeout(demo.timer);if(demo.i<demo.st.length-1){demo.i++;const s=demo.st[demo.i];demo.show=!(s.place||s.strike);render();demoCard();if(!demo.show)setTimeout(()=>{if(demo){demo.show=true;render()}},1300);if(demo.auto)demo.timer=setTimeout(nextStage,s.place||s.strike?3600:3200)}else{demo.auto=false;demoCard()}}
-function demoCard(){const d=demo,last=d.i>=d.st.length-1;setCard(`<div class="card"><h2>${d.mine?"What you did":"Step by step"} · ${d.i+1} of ${d.st.length}</h2><p>${d.st[d.i].txt}</p><div class="row">${last?'<button class="p" id="dr">Watch again</button>':'<button class="p" id="dn">Next</button><button id="dp">Play all</button>'}<button id="dc">Close</button></div></div>`)}
-function render(){const dm=demo&&demo.st[demo.i],VV=demo?demo.snap.V:S.V,CC=demo?demo.snap.C:S.C,cnt=Array(10).fill(0);S.V.forEach(v=>cnt[v]++);const st=view&&view.step,el=(st&&st.elim)||[],show=!demo&&view&&!view.hidden;let h="";
-for(let i=0;i<81;i++){const v=VV[i],r=Math.floor(i/9),c=i%9;let cls="c";if(c%3===2&&c<8)cls+=" br";if(r%3===2&&r<8)cls+=" bb";if(giv[i])cls+=" g";if(!demo&&foc&&v===foc)cls+=" fo";if(!demo&&i===sel)cls+=" sel";let inner="";
-if(dm){const hl=dm.hl.includes(i),sk=dm.strike&&dm.strike.find(q=>q[0]===i);if(hl)cls+=" inv bounce";if(dm.place&&dm.hl[0]===i)cls+=" tgt";
-if(v)inner=`<span class="d">${v}</span>`;else if(dm.place&&dm.hl[0]===i&&demo.show)inner=`<span class="d pre">${demo.c.digit}</span>`;
-else if(hl&&!dm.place){const em=sk?sk[1]:0;inner=mini(d=>{const on=CC[i]&bit(d),x=on&&(em&bit(d))&&demo.show,k=on&&(dm.dig.includes(d)||(em&bit(d)));return`<i class="${x?"x":k?"k":""}">${k||x?d:""}</i>`})}}
+function demoCard(){const d=demo,last=d.i>=d.st.length-1;d.all=false;setCard(`<div class="card"><h2>${d.mine?"What you did":"Step by step"} · ${d.i+1} of ${d.st.length}</h2><p>${d.st[d.i].txt}</p><div class="row">${last?'<button class="p" id="dr">Watch again</button>':'<button class="p" id="dn">Next</button><button id="dp">Play all</button>'}<button id="da">See all steps</button><button id="dc">Close</button></div></div>`)}
+function seeAll(){clearTimeout(demo.timer);demo.auto=false;demo.i=demo.st.length-1;demo.show=true;demo.all=true;render();setCard(`<div class="card"><h2>${demo.mine?"What you did":"Step by step"}: all steps</h2><ol>${demo.st.map(x=>`<li>${x.txt}</li>`).join("")}</ol><p class="k2">The board shows the finishing point. Tap a highlighted cell to see how it connects.</p><div class="row"><button class="p" id="dr">Watch again</button><button id="dc">Close</button></div></div>`)}
+const RSN={pointing:"In that box every possible spot for the digit is on one line, so the box’s digit must be on that line. Any other cell on the line can’t also hold it.",claiming:"In that line every possible spot for the digit is inside one box, so the line’s digit is in that box. The box’s other cells can’t hold it.",nakedpair:"The pair must use up its two digits, so no other cell in the unit can hold them.",hiddenpair:"These two digits can only go in the pair cells, so the pair cells can’t hold anything else.",xwing:"The digit must fill one diagonal of the rectangle, so every other cell in those lines can’t hold it.",swordfish:"The digit is used up inside the three crossing lines, so every other cell in them can’t hold it.",skyscraper:"At least one roof cell is the digit, and this cell sees both roof cells.",xywing:"One wing must hold the shared digit, and this cell sees both wings.",xyzwing:"The shared digit is in the pivot or one wing, and this cell sees all three."};
+const shared=(i,j)=>U.map((u,k)=>u.includes(i)&&u.includes(j)?UN(k):null).filter(Boolean).join(" and ");
+function explain(i){const src=demo?demo.c:(view&&!view.hidden?view.c:null);if(!src||!src.key)return false;const s=src.key,el=(s.elim||[]).find(q=>q[0]===i),tg=src.target===i,inv=s.cells.includes(i);if(!el&&!tg&&!inv)return false;let t,set=new Set();
+if(tg)t=`<b>This is the answer cell (green).</b> ${s.place?"Only one digit fits here.":"Once the red candidates are removed, only one digit is left here."} Use Hint or Watch it step by step to see why.`;
+else if(el){const lk=s.cells.filter(j=>P[i][j]);lk.forEach(j=>U.forEach(u=>{if(u.includes(i)&&u.includes(j))u.forEach(c=>set.add(c))}));t=`<b>${rc(i)} (red) loses the ${dg(el[1]).join(", ")}.</b> It sees ${lk.map(j=>rc(j)+" through "+shared(i,j)).join("; ")}. Those are pattern cells, and the blue cells show the lines that connect them. ${RSN[s.t]||s.text}`}
+else t=`<b>${rc(i)} is part of the pattern (yellow).</b> ${RSN[s.t]?"It is one of the cells that holds the key digit. "+RSN[s.t]:TECH[s.t].d}`;
+exSel={set,i};setCard(`<div class="card"><h2>${rc(i)}</h2><p>${t}</p><button id="dback">Back</button></div>`);render();return true}
+function render(){const dm=demo&&demo.st[demo.i],VV=demo?demo.snap.V:S.V,CC=demo?demo.snap.C:S.C,cnt=Array(10).fill(0);S.V.forEach(v=>cnt[v]++);const st=view&&view.step,el=(st&&st.elim)||[],show=!demo&&view&&!view.hidden;
+let CX=CC,R=null;if(dm){const k=demo.c.key;CX=Int16Array.from(CC);if(dm.after||dm.place)for(const[i,m]of k.elim||[])CX[i]&=~m;R=new Set([...k.cells,...(k.elim||[]).map(q=>q[0]),demo.c.target])}
+let h="";for(let i=0;i<81;i++){const v=VV[i],r=Math.floor(i/9),c=i%9;let cls="c";if(c%3===2&&c<8)cls+=" br";if(r%3===2&&r<8)cls+=" bb";if(giv[i])cls+=" g";if(!demo&&foc&&v===foc)cls+=" fo";if(!demo&&i===sel)cls+=" sel";if(exSel&&exSel.set.has(i))cls+=" ln";let inner="";
+if(dm){const hl=dm.hl.includes(i),sk=dm.strike&&dm.strike.find(q=>q[0]===i);if(hl&&!demo.all)cls+=" inv bounce";if(demo.c.target===i&&(dm.place||dm.after||demo.all))cls+=" tgt";
+if(v)inner=`<span class="d">${v}</span>`;else if((dm.place||demo.all)&&demo.c.target===i&&demo.show)inner=`<span class="d pre">${demo.c.digit}</span>`;
+else if(R.has(i)){const em=sk&&!demo.all?sk[1]:0;inner=mini(d=>{const on=CX[i]&bit(d),x=on&&(em&bit(d))&&demo.show,k=on&&dm.dig.includes(d);return`<i class="${x?"x":k?"k":""}">${on?d:""}</i>`})}}
 else{const inv=show&&st.cells.includes(i),e=show&&el.find(q=>q[0]===i);if(inv)cls+=" inv";if(e)cls+=" el";if(view&&view.target===i)cls+=" tgt";
 if(v)inner=`<span class="d">${v}</span>`;
 else if(inv||e){const em=e?e[1]:0,src=view.notes?N:S.C;inner=mini(d=>{const on=src[i]&bit(d),x=on&&(em&bit(d)),k=on&&st.f.includes(d);return`<i class="${x?"x":k?"k":""}">${x||k?d:""}</i>`})}
@@ -193,7 +225,7 @@ setTimeout(()=>{const p=generate(L,2500,w);pref=w&&p.ok?w:null;LL=pref?L:Math.ma
 info=w?(p.ok?`Practising ${TECH[w].n}.`:`Couldn’t force ${TECH[w].n} this time; closest I found.`):(p.hard>=L?`Level ${L} puzzle.`:`Closest I found needs Level ${p.hard}; tap New puzzle for a harder one.`);
 if(mode==="learn"){let c=findLesson(LL,pref);if(c)c=fillAround(c);if(c){view={step:c.key,target:c.target,c,lesson:true};relCard(view)}else setCard('<div class="card"><b>This puzzle never needs this technique.</b> Tap New puzzle to try again.</div>')}
 $("g").style.opacity=1;render()},30)}
-function setMode(t){const g=t==="guide";document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));$("bd").style.display=g?"none":"";$("gd").style.display=g?"":"none";
+function setMode(t){const g=t==="guide",rs=t==="resources";$("rs").style.display=rs?"":"none";document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===t));$("bd").style.display=g||rs?"none":"";$("gd").style.display=g?"":"none";if(rs)return;
 if(g){$("gx").innerHTML=KEYS.map(k=>`<p><b>${TECH[k].n}</b> <span class="tag">Level ${TECH[k].l}</span><br><span class="k2">${TECH[k].d}</span><br><button data-ex="${k}">Show me an example</button></p>`).join("");return}
 const ch=mode!==t;mode=t;const sug=KEYS.find(k=>(prog[k]||0)<3);$("sub").textContent=(t==="learn"?"I’ll show a technique on a real cell, then you apply it to the green square.":"Solve freely. Hint shows one answer at a time. Turn on Notes to pencil in candidates.")+(sug?` Suggested next skill: ${TECH[sug].n}.`:" You’ve practised every skill here three times.");if(ch||!S)newPuzzle()}
 document.addEventListener("click",e=>{const b=e.target.closest("button,.c");if(!b)return;
@@ -205,11 +237,11 @@ if(b.id==="pa"){credit(pop.s.t);for(const[i,m]of pop.s.elim)N[i]&=~m;const one=p
 if(b.id==="pn"){dismissed.add(pop.key);view=null;setCard("");return render()}
 if(b.id==="show"){const c=view.c;put(c.target,c.digit,true);setCard('<div class="card"><b>Filled in.</b> Finish the puzzle, or tap New puzzle to try another example.</div>');return render()}
 if(b.id==="watch"){return startDemo(view.c)}if(b.id==="rwb"){return startDemo(rew.c,rew.snap,true)}if(b.id==="rwx"){rew=null;return render()}
-if(b.id==="dn")return nextStage();if(b.id==="dp"){demo.auto=true;return nextStage()}if(b.id==="dr"){demo.i=-1;demo.auto=false;return nextStage()}
+if(b.id==="da")return seeAll();if(b.id==="dback"){exSel=null;if(demo&&demo.all)seeAll();else if(demo)demoCard();else if(view)relCard(view);return render()}if(b.id==="dn")return nextStage();if(b.id==="dp"){demo.auto=true;return nextStage()}if(b.id==="dr"){demo.all=false;demo.i=-1;demo.auto=false;return nextStage()}
 if(b.id==="dc"){clearTimeout(demo&&demo.timer);demo=null;setCard("");return render()}
 if(b.dataset.k!==undefined){const s=avail[+b.dataset.k];if(!s)return;view={step:s,target:s.place?s.place[0]:null,c:{target:s.place?s.place[0]:null}};setCard(`<div class="card"><b>${TECH[s.t].n}</b><p class="k2">${TECH[s.t].d}</p><p class="k2">The highlighted cells are where it applies.</p></div>`);return render()}
 if(b.dataset.d){return enter(+b.dataset.d)}
-if(b.classList.contains("c")){sel=+b.dataset.i;if(S.V[sel])foc=S.V[sel];render()}});
+if(b.classList.contains("c")){sel=+b.dataset.i;if(S.V[sel]&&!demo)foc=S.V[sel];if(!explain(sel))render()}});
 $("new").onclick=newPuzzle;
 $("nt").onclick=()=>{notesOn=!notesOn;render()};$("fill").onclick=()=>{N=Int16Array.from(S.C);render()};
 $("hint").onclick=()=>{if(S.V.every(x=>x))return;hints++;if(view&&view.hidden&&view.c&&view.c.key){view.hidden=false;relCard(view);return render()}
