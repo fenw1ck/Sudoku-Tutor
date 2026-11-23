@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sudoku Tutor</title>
+<meta name="description" content="Play sudoku, learn solving techniques from a skills map, and practise the skills you choose.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3E%3Crect width=%2716%27 height=%2716%27 rx=%273%27 fill=%27%232f5d50%27/%3E%3Ctext x=%278%27 y=%2712%27 font-size=%2711%27 text-anchor=%27middle%27 fill=%27white%27 font-family=%27Georgia%27%3E9%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<script type="module" src="js/app.js"></script>
+</head>
+<body>
+<main>
+<header>
+  <div class="titlebar"><h1>Sudoku Tutor</h1><button id="theme" class="small" aria-label="Colour theme"></button></div>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" id="tab-play" data-tab="play" aria-controls="play-view">Play</button>
+    <button role="tab" id="tab-learn" data-tab="learn" aria-controls="learn-view">Learn</button>
+    <button role="tab" id="tab-practice" data-tab="practice" aria-controls="practice-view">Practice Skills</button>
+  </nav>
+</header>
+
+<!-- PLAY -->
+<section id="play-view" role="tabpanel" aria-labelledby="tab-play" hidden>
+  <p class="sub">A standard game. Pick a difficulty, solve, and beat your best time.</p>
+  <div class="row">
+    <select id="diff" aria-label="Difficulty">
+      <option value="easy">Easy: singles only</option>
+      <option value="medium">Medium: pairs and locked candidates</option>
+      <option value="hard">Hard: fish and wings</option>
+    </select>
+    <button class="p" id="play-new">New puzzle</button>
+  </div>
+  <div id="play-badges" class="badges"></div>
+</section>
+
+<!-- LEARN -->
+<section id="learn-view" role="tabpanel" aria-labelledby="tab-learn" hidden>
+  <div id="map-view">
+    <p class="sub">Skills run from Beginner (Easy puzzles) to Advanced (Hard puzzles). Arrows point from a skill to the skills that build on it, so learning one opens the next. Hover or focus a skill to light up its path; skills without arrows stand on their own. Pick any skill to read how it works, watch a worked example, and try an exercise you can only finish with it.</p>
+    <div id="skill-map"></div>
+    <div class="card" id="planned"></div>
+    <details class="card" id="resources">
+      <summary>Further reading and video</summary>
+      <h2>Reading and reference</h2>
+      <ul>
+        <li><a href="https://www.sudopedia.org" target="_blank" rel="noopener">Sudopedia</a>: technique definitions and names.</li>
+        <li><a href="https://www.sudokuwiki.org/Strategy_Families" target="_blank" rel="noopener">SudokuWiki: strategy families</a>: worked examples and an online solver.</li>
+        <li><a href="https://hodoku.sourceforge.net/en/techniques.php" target="_blank" rel="noopener">HoDoKu techniques</a>: solver and trainer by Bernhard Hobiger.</li>
+        <li><a href="https://blog.krazydad.com/?p=39" target="_blank" rel="noopener">Krazydad: an index of sudoku strategies</a>.</li>
+        <li>Crook, J. F. (2009). "A pencil-and-paper algorithm for solving Sudoku puzzles." <i>Notices of the AMS</i>, 56(4).</li>
+      </ul>
+      <h2>Video</h2>
+      <ul>
+        <li><a href="https://www.youtube.com/@CrackingTheCryptic" target="_blank" rel="noopener">Cracking the Cryptic</a> (YouTube): two expert solvers who solve puzzles live and explain every step.</li>
+      </ul>
+      <h2>Credits</h2>
+      <ul>
+        <li>Technique names and definitions follow Sudopedia, SudokuWiki and HoDoKu. Each skill page links its sources.</li>
+        <li>Puzzles are generated in your browser by a logic solver written for this site, with no external libraries. Every puzzle has exactly one solution.</li>
+        <li>Built with help from Claude (Anthropic).</li>
+      </ul>
+    </details>
+  </div>
+  <div id="skill-view" hidden></div>
+</section>
+
+<!-- PRACTICE -->
+<section id="practice-view" role="tabpanel" aria-labelledby="tab-practice" hidden>
+  <p class="sub">Choose the skills you want to work on. The next puzzle will need every one of them, plus singles.</p>
+  <div id="practice-picker"></div>
+  <div class="row">
+    <button id="pr-weak">Pick my weakest</button>
+    <button id="pr-clear">Clear</button>
+    <button class="p" id="pr-go">Make a practice puzzle</button>
+  </div>
+</section>
+
+<!-- BOARD (shared by Play, Practice and Learn exercises/examples) -->
+<section id="board-view" hidden>
+  <div id="board-head"></div>
+  <div class="status" id="st" aria-live="polite"></div>
+  <div class="gridwrap">
+    <div id="g" role="grid" tabindex="0" aria-label="Sudoku grid. Use arrow keys to move, 1 to 9 to enter, Backspace to erase."></div>
+    <div id="rw"></div>
+  </div>
+  <div class="pad" id="pad" aria-label="Number pad"></div>
+  <div class="err" id="er" aria-live="polite"></div>
+  <div class="tools" role="toolbar" aria-label="Game tools">
+    <button id="nt" aria-pressed="false" data-tip="Notes: tap digits to pencil in candidates (N)">✏️ Notes</button>
+    <button id="erase" aria-label="Erase" data-tip="Erase the selected cell (Backspace)">⌫</button>
+    <button id="undo" aria-label="Undo" data-tip="Undo (Ctrl+Z)">↶</button>
+    <button id="redo" aria-label="Redo" data-tip="Redo (Ctrl+Y)">↷</button>
+    <button id="fill" data-tip="Fill every empty cell with all its possible candidates">Fill notes</button>
+    <button id="check" hidden data-tip="Show which entries are wrong">Check</button>
+    <button id="fast" aria-pressed="true">Fast mode</button>
+    <button class="p" id="hint" data-tip="Show the next step and why it works">Hint</button>
+  </div>
+  <div id="hc"></div>
+  <details class="card" id="avail-card">
+    <summary>Techniques that apply right now</summary>
+    <div class="chips" id="sk"></div>
+    <p class="k2">Tap one to highlight where it works.</p>
+  </details>
+  <details class="card" id="settings">
+    <summary>Settings</summary>
+    <label class="opt"><input type="checkbox" id="set-check"> Check entries as I go (wrong digits turn red right away)</label>
+    <label class="opt"><input type="checkbox" id="set-timer"> Show the timer</label>
+    <p class="k2">With checking off, use Check or finish the grid to see mistakes. Learn exercises always check as you go.</p>
+    <p class="k2"><b>Fast mode</b> on: Hint points to the easiest next answer. Off: Hint teaches the hardest skill that opens up a new cell.</p>
+    <div class="row"><button id="export">Export progress</button><button id="import">Import progress</button><button id="reset">Reset my progress</button></div>
+    <input type="file" id="import-file" accept=".json,application/json" hidden>
+    <p class="k2" id="reset-msg">Progress lives in this browser. Export it to keep a copy or move it to another device.</p>
+  </details>
+</section>
+</main>
+</body>
+</html>
